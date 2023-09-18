@@ -4,7 +4,7 @@ const sequelize = require('../Untils/database.js')
 const BannedUser = sequelize.define(
     'BannedUser',
     {
-        tag: {
+        tagid: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -23,6 +23,7 @@ const BannedUser = sequelize.define(
         timestamps: false,
         createdAt: false,
         updatedAt: false,
+        
     }
 )
 
