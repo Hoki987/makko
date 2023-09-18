@@ -1,3 +1,3 @@
 const BannedUser = require('./src/Structures/Models/BannedUser.js');
 
-BannedUser.sync({ force: true })
+BannedUser.sync({ alter: true }) //forse
