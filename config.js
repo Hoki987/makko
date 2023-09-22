@@ -9,73 +9,10 @@ const StuffRoles = {
 
 const Utility = {
     guildName: 'META',
-    guildAvatar: 'https://cdn.discordapp.com/attachments/1129389401630314507/1154763833722802236/metaavatar.png'
+    guildAvatar: 'https://cdn.discordapp.com/attachments/1129389401630314507/1154763833722802236/metaavatar.png',
+    colorRed: 16711680,
+    colorGreen: 7405312,
+    colorDiscord: 2829617,
 }
 
-const WorkEmbeds = {
-    NotBanYourself: [
-        {
-            "title": "**Вы не можете забанить сами себя!**",
-            "color": 16711680,
-            "footer": {
-                "text": `Сервер: ${Utility.guildName}`,
-                "icon_url": `${Utility.guildAvatar}`
-            }
-        }
-    ],
-    NotBanBot: [
-        {
-            "title": "**Вы не можете забанить бота!**",
-            "color": 16711680,
-            "footer": {
-                "text": `Сервер: ${Utility.guildName}`,
-                "icon_url": `${Utility.guildAvatar}`
-            }
-        }
-    ],
-    NotBanRoleHigh: [
-        {
-            "title": "**Пользователь не был забанен!**",
-            "description": "**Причина:** Позиция человека в стаффе выше, чем ваша.",
-            "color": 16711680,
-            "footer": {
-                "text": `Сервер: ${Utility.guildName}`,
-                "icon_url": `${Utility.guildAvatar}`
-            }
-        }
-    ],
-    NotBanRoleEquals: [
-        {
-            "title": "**Пользователь не был забанен!**",
-            "description": "**Причина:** Позиция человека в стаффе равна вашей.",
-            "color": 16711680,
-            "footer": {
-                "text": `Сервер: ${Utility.guildName}`,
-                "icon_url": `${Utility.guildAvatar}`
-            }
-        }
-    ],
-    BanOk: [
-        {
-            "description": "**Пользователь был забанен**",
-            "color": 7405312,
-            "footer": {
-                "text": `Сервер: ${Utility.guildName}`,
-                "icon_url": `${Utility.guildAvatar}`
-            }
-        }
-    ],
-    BanNo: [
-        {
-            "title": "**Пользователь не был забанен!**",
-            "description": "**Причина:** Пользователь уже в бане.",
-            "color": 16711680,
-            "footer": {
-                "text": `Сервер: ${Utility.guildName}`,
-                "icon_url": `${Utility.guildAvatar}`
-            }
-        }
-    ],
-}
-
-module.exports = { WorkRoles, StuffRoles, WorkEmbeds };
+module.exports = { WorkRoles, StuffRoles, Utility };
