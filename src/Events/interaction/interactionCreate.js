@@ -45,18 +45,5 @@ module.exports = {
                 console.log(`${color.bold.red(`[INTERACTION > CREATE CONTEXT : ERROR]`)}` + `${error}.`.bgRed);
             }
         };
-
-        if (interaction.isButton()) {
-            const value = interaction.customId;
-
-        };
-        if (interaction.isStringSelectMenu()) {
-            const value = interaction.customId;
-
-        };
-        if (interaction.isModalSubmit()) {
-            const value = interaction.customId;
-
-        };
     },
 };

@@ -39,7 +39,6 @@ const client = new Client({
         Partials.ThreadMember,
         Partials.User
     ],
-    fetchALLMembers: true
 })
 
 //======================< Collection >===================\\

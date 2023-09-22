@@ -11,6 +11,6 @@ module.exports = {
      */
 
     async execute(client) {
-        client.user.setPresence({ activities: [{ name: "На 1337", type: ActivityType.Watching }], status: "online" });
+        client.user.setPresence({ activities: [{ name: "за порядком", type: ActivityType.Watching }], status: "online" });
     },
 };
