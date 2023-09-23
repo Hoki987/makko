@@ -2,8 +2,8 @@
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
-const color = require('colors');
 const { WorkRoles, StuffRoles, Utility } = require('../../../config.js');
+const History = require('../../Structures/Models/History.js');
 
 //===========================================< Code >===========================\\
 module.exports = {
@@ -34,78 +34,42 @@ module.exports = {
      */
 
     async execute(client, interaction) {
-        let description;  // присваивать это все в switch - case 
-        let color;
-        
-        const NotBanYourself = new EmbedBuilder()
-            .setColor(Utility.colorRed)
-            .setDescription('**Вы не можете забанить сами себя!**')
-            .setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
-
-        const NotBanBot = new EmbedBuilder()
-            .setColor(Utility.colorRed)
-            .setDescription('**Вы не можете забанить бота!**')
-            .setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
-
-        const NotBanRoleHigh = new EmbedBuilder()
-            .setColor(Utility.colorRed)
-            .setTitle('**Пользователь не был забанен!**')
-            .setDescription('**Причина:** Позиция человека в стаффе выше, чем ваша.')
-            .setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
-
-        const NotBanRoleEquals = new EmbedBuilder()
-            .setColor(Utility.colorRed)
-            .setTitle('**Пользователь не был забанен!**')
-            .setDescription('**Причина:** Позиция человека в стаффе равна вашей.')
-            .setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });  // сделать 1 эмбед, которпый будет меняться в switch - case (disc - color)
-
-        const BanNo = new EmbedBuilder()
-            .setColor(Utility.colorRed)
-            .setTitle('**Пользователь не был забанен!**')
-            .setDescription('**Причина:** Пользователь уже в бане.')
-            .setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
-
-        const BanOk = new EmbedBuilder()
-            .setColor(Utility.colorGreen)
-            .setTitle('**Пользователь был забанен!**')
-            .setDescription('**Причина: **' + '`' + `${getReason}` + '`')
-            .setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
-
-        const BanOkNoReason = new EmbedBuilder()
-            .setColor(Utility.colorGreen)
-            .setTitle('**Пользователь был забанен!**')
-            .setDescription('**Причина: **' + '`' + 'пусто' + '`')
-            .setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
-
         const getUser = interaction.options.get('пользователь');
         const getReason = interaction.options.getString('причина');
+        const hasRole = (id) => getUser.member.roles.cache.has(id);
 
         const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
         const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
 
-        await interaction.deferReply()
-        if (interaction.user.id === getUser.member.id) {  // переделать под switch - case 
-        await  interaction.reply({ embeds: [NotBanYourself] }) // обязательно все await'ить 
-        } else if (getUser.user.bot === true) {
-        await  interaction.reply({ embeds: [NotBanBot] })
-        } else if (memberPosition < targetPosition) {
-            interaction.reply({ embeds: [NotBanRoleHigh] })
-        } else if (memberPosition == targetPosition) {
-            interaction.reply({ embeds: [NotBanRoleEquals] })
-        } else if (memberPosition > targetPosition) {
-            const hasRole = (id) => getUser.member.roles.cache.has(id);
+        let description;
+        let color;
 
-            if (hasRole(WorkRoles.Ban)) {
-                interaction.reply({ embeds: [BanNo] })
-            } else {
-                if (getReason == null) {
-                    getUser.member.roles.add(WorkRoles.Ban)
-                    interaction.reply({ embeds: [BanOkNoReason] })
-                } else {
-                    getUser.member.roles.add(WorkRoles.Ban)
-                    interaction.reply({ embeds: [BanOk] })
-                }
-            }
+        await interaction.deferReply()
+        switch (true) {
+            case interaction.user.id === getUser.member.id:
+            case getUser.user.bot:
+            case memberPosition <= targetPosition:
+                description = '**Недостаточно прав!**';
+                color = Utility.colorRed;
+                break;
+            case hasRole(WorkRoles.Ban):
+                description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} не был **забанен**\n\`\`\`Причина: уже в бане\`\`\``
+                color = Utility.colorRed
+                break;
+            default:
+                description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
+                color = Utility.colorGreen
+                await History.create({
+                    executor: interaction.user.id,
+                    target: getUser.user.id,
+                    reason: getReason || null,
+                    type: 'ban',
+                    timestamp: new Date()
+                })
+                await getUser.member.roles.add(WorkRoles.Ban)
+                break;
         }
+        const embed = new EmbedBuilder().setDescription(description).setColor(color).setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
+        await interaction.editReply({ embeds: [embed] });
     }
 }
