@@ -1,24 +1,31 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../Untils/database.js')
 
-const BannedUser = sequelize.define(
-    'BannedUser',
+const History = sequelize.define(
+    'History',
     {
-        tagid: {
+        executor: {
+           type: DataTypes.STRING,
+           allowNull: false,
+        },
+        target: {
             type: DataTypes.STRING,
             allowNull: false,
         },
         reason: {
             type: DataTypes.STRING,
+        },
+        type: {
+            type: DataTypes.STRING,
             allowNull: false,
         },
         timestamp: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATE, 
             allowNull: false,
-        },
+        },   
     },
     {
-        tableName: 'BannedUsers',
+        tableName: 'History',
         // freezeTableName: true, выключает автоматическую плюрализацию
         timestamps: false,
         createdAt: false,
@@ -27,4 +34,4 @@ const BannedUser = sequelize.define(
     }
 )
 
-module.exports = BannedUser;
+module.exports = History;
