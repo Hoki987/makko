@@ -1,2 +1,2 @@
 # makko
-Moderation Bot for meta
+Advanced Moderation bot
