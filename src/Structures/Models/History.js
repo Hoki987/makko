@@ -5,30 +5,28 @@ const History = sequelize.define(
     'History',
     {
         executor: {
-           type: DataTypes.STRING,
+           type: DataTypes.STRING, // кто выдавал наказание
            allowNull: false,
         },
         target: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING, // кому выдавали наказание
             allowNull: false,
         },
         reason: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING, // причина наказания
         },
         type: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING, // ban, mute, warn, pred, banJpg, banCam
             allowNull: false,
         },
-        timestamp: {
-            type: DataTypes.DATE, 
+        expiresAt: {
+            type: DataTypes.DATE, // когда истекает
             allowNull: false,
-        },   
+        },
     },
     {
         tableName: 'History',
         // freezeTableName: true, выключает автоматическую плюрализацию
-        timestamps: false,
-        createdAt: false,
         updatedAt: false,
         
     }

@@ -1,3 +1,4 @@
-const BannedUser = require('./src/Structures/Models/History.js');
+const History = require('./src/Structures/Models/History.js');
 
-BannedUser.sync({ forse: true }) //forse
+// History.drop();
+History.sync({ force: true }); //forse, alter
