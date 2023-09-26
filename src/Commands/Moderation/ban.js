@@ -1,5 +1,6 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { Op } = require('sequelize');
 
 //==========< OTHERS >==========\\
 const { WorkRoles, StuffRoles, Utility } = require('../../../config.js');
@@ -36,7 +37,6 @@ module.exports = {
     async execute(client, interaction) {
         const getUser = interaction.options.get('пользователь');
         const getReason = interaction.options.getString('причина');
-        const getOptionReason = interaction.options.getString();
         const hasRole = (id) => getUser.member.roles.cache.has(id);
 
         const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
@@ -50,51 +50,24 @@ module.exports = {
 
         await interaction.deferReply()
 
-        switch (true) {
-            case interaction.user.id === getUser.member.id:
-            case getUser.user.bot:
-            case memberPosition <= targetPosition:
-                description = '**Недостаточно прав!**';
-                color = Utility.colorRed;
-                break;
-            case hasRole(WorkRoles.Ban):
-                description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} не был **забанен**\n\`\`\`Причина: уже в бане\`\`\``
-                color = Utility.colorRed
-                // break;
-                // default:
-                // сделать проверку на причину, по которой забанили
-                // сделать проверку на наличие роли
-                break;
-        }
-        switch (getOptionReason) {
+        switch (getReason) {
             case 'переход':
                 description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
                 color = Utility.colorGreen
                 expiresAt = new Date(Date.now() + 26000000 * 1000000)
                 break;
             case '4.4':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getOptionReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
+                const permBan = [`**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,  Utility.colorGreen, new Date(Date.now() + 26000000 * 1000000)]
+                const monthBan = [`**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, color = Utility.colorGreen, expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)]
+                const records = await History.count({ where: { [Op.and]: [{ target: getUser.user.id }, { reason: getReason }], }, })
+                description = records ? permBan[0] : monthBan[0]
+                color = records ? permBan[1] : monthBan[1]
                 break;
             case '3.1':
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -112,7 +85,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -130,7 +103,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -148,7 +121,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -166,7 +139,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -184,7 +157,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -202,7 +175,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -220,7 +193,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -238,7 +211,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -256,7 +229,7 @@ module.exports = {
                 await History.findAll({
                     where: {
                         target: getUser.user.id,
-                        reason: getOptionReason
+                        reason: getReason
                     }
                 })
                     ?
@@ -277,16 +250,31 @@ module.exports = {
                 break;
         }
 
-        console.log(getOptionReason);
+        switch (true) {
+            case interaction.user.id === getUser.member.id:
+            case getUser.user.bot:
+            case memberPosition <= targetPosition:
+                description = '**Недостаточно прав!**';
+                color = Utility.colorRed;
+                break;
+            case hasRole(WorkRoles.Ban):
+                description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} не был **забанен**\n\`\`\`Причина: уже в бане\`\`\``
+                color = Utility.colorRed
+                break;
+            default:
+                description
+                color
+                await History.create({
+                    executor: interaction.user.id,
+                    target: getUser.user.id,
+                    reason: getReason || null,
+                    type: 'ban',
+                    expiresAt: expiresAt,
+                })
+                await getUser.member.roles.add(WorkRoles.Ban)
+                break;
+        }
 
-        await History.create({
-            executor: interaction.user.id,
-            target: getUser.user.id,
-            reason: getReason || null,
-            type: 'ban',
-            expiresAt: expiresAt,
-        })
-        await getUser.member.roles.add(WorkRoles.Ban)
 
         const embed = new EmbedBuilder().setDescription(description).setColor(color).setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
         await interaction.editReply({ embeds: [embed] });
