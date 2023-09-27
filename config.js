@@ -8,8 +8,8 @@ const StuffRoles = {
 }
 
 const Reasons = {
-    perm: ['<13', 'переход'],
-    temp: ['4.4', '3.1', '3.3', '3.6', '3.7', '3.8', '3.9', '3.10', '3.11', '3.13', '4.3']
+    perm: ['<13', 'переход', '3.9'],
+    temp: ['4.4', '3.1', '3.3', '3.6', '3.7', '3.8', '3.10', '3.11', '3.13', '4.3']
 }
 
 const Utility = {
@@ -18,6 +18,11 @@ const Utility = {
     colorRed: 16711680,
     colorGreen: 7405312,
     colorDiscord: 2829617,
+
+
+    banEmoji: '<:ban:1155041800319422555>',
+    pointEmoji: '<:tochka:1156615794923409488>',
+    fonEmoji: '<:meta_fon:1103228292154282045>'
 }
 
 module.exports = { WorkRoles, StuffRoles, Reasons, Utility };

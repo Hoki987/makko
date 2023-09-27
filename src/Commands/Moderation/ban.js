@@ -1,5 +1,5 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { Op } = require('sequelize');
 
 //==========< OTHERS >==========\\
@@ -37,33 +37,33 @@ module.exports = {
     async execute(client, interaction) {
         const getUser = interaction.options.get('пользователь');
         const getReason = interaction.options.getString('причина');
+
         const hasRole = (id) => getUser.member.roles.cache.has(id);
         const hasBan = (banType) => Object.values(banType).includes(getReason);
-        // Object.values(banType)
 
         const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
         const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
 
-        // const findActiveBan = History.findAll({ where: { status: active } });
-
         let description;
         let color;
         let expiresAt;
+        let AppelDesc;
 
         await interaction.deferReply()
         switch (true) {
             case hasBan(Reasons.perm):
-                description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
+                description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
                 color = Utility.colorGreen
                 expiresAt = new Date(Date.now() + 26000000 * 1000000)
                 break;
             case hasBan(Reasons.temp):
-                const permBan = [`**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 26000000 * 1000000)]
-                const monthBan = [`**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)]
+                const permBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 26000000 * 1000000), '**навсегда**']
+                const monthBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), '**на 30 дней**']
                 const records = await History.count({ where: { [Op.and]: [{ target: getUser.user.id }, { reason: getReason }], }, })
                 description = records ? permBan[0] : monthBan[0]
                 color = records ? permBan[1] : monthBan[1]
                 expiresAt = records ? permBan[2] : monthBan[2]
+                AppelDesc = records ? permBan[3] : monthBan[3]
                 break;
         }
 
@@ -75,7 +75,7 @@ module.exports = {
                 color = Utility.colorRed;
                 break;
             case hasRole(WorkRoles.Ban):
-                description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} не был **забанен**\n\`\`\`Причина: уже в бане\`\`\``
+                description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} не был **забанен**\n\`\`\`Причина: уже в бане\`\`\``
                 color = Utility.colorRed
                 break;
             default:
@@ -89,15 +89,19 @@ module.exports = {
                     expiresAt: expiresAt,
                 })
                 await getUser.member.roles.add(WorkRoles.Ban)
+
+                const embedAppel = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили бан ` + AppelDesc).setDescription(`\`\`\`Причина: ${getReason} \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+                const AppelButton = new ButtonBuilder().setCustomId('AppelButton').setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+
+                await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
                 break;
         }
-
-
         const embed = new EmbedBuilder().setDescription(description).setColor(color).setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
+
         await interaction.editReply({ embeds: [embed] });
-        // чс обжалований
+
         // function unban() {
-        //     History.findAll({  })
+        //     await History.findAll({ where: { [Op.lt]: [{ createdAt: expiresAt }] } }) 
         // }
         // setInterval(unban, 10000) // 2629800000 - 1 месяц в миллисекундах
     }
