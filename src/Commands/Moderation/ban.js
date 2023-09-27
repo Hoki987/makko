@@ -3,7 +3,7 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder }
 const { Op } = require('sequelize');
 
 //==========< OTHERS >==========\\
-const { WorkRoles, StuffRoles, Utility } = require('../../../config.js');
+const { WorkRoles, StuffRoles, Utility, Reasons } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 
 //===========================================< Code >===========================\\
@@ -38,6 +38,8 @@ module.exports = {
         const getUser = interaction.options.get('пользователь');
         const getReason = interaction.options.getString('причина');
         const hasRole = (id) => getUser.member.roles.cache.has(id);
+        const hasBan = (banType) => Object.values(banType).includes(getReason);
+        // Object.values(banType)
 
         const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
         const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
@@ -49,204 +51,19 @@ module.exports = {
         let expiresAt;
 
         await interaction.deferReply()
-
-        switch (getReason) {
-            case 'переход':
+        switch (true) {
+            case hasBan(Reasons.perm):
                 description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
                 color = Utility.colorGreen
                 expiresAt = new Date(Date.now() + 26000000 * 1000000)
                 break;
-            case '4.4':
-                const permBan = [`**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,  Utility.colorGreen, new Date(Date.now() + 26000000 * 1000000)]
-                const monthBan = [`**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, color = Utility.colorGreen, expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)]
+            case hasBan(Reasons.temp):
+                const permBan = [`**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 26000000 * 1000000)]
+                const monthBan = [`**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)]
                 const records = await History.count({ where: { [Op.and]: [{ target: getUser.user.id }, { reason: getReason }], }, })
                 description = records ? permBan[0] : monthBan[0]
                 color = records ? permBan[1] : monthBan[1]
-                break;
-            case '3.1':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '3.3':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '3.6':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '3.7':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '3.8':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '3.9':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '3.10':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '3.11':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '3.13':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '4.3':
-                await History.findAll({
-                    where: {
-                        target: getUser.user.id,
-                        reason: getReason
-                    }
-                })
-                    ?
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 26000000 * 1000000)
-                    )
-                    :
-                    (description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен на 30d**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``,
-                        color = Utility.colorGreen,
-                        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                    )
-                break;
-            case '<13':
-                description = `**[<:ban:1155041800319422555>]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
-                color = Utility.colorGreen
-                expiresAt = new Date(Date.now() + 26000000 * 1000000)
+                expiresAt = records ? permBan[2] : monthBan[2]
                 break;
         }
 
