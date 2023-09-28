@@ -13,7 +13,7 @@ const Reasons = {
 }
 
 const Utility = {
-    guildName: 'META',
+    StuffServer: '1000307645854519306',
     guildAvatar: 'https://cdn.discordapp.com/attachments/1129389401630314507/1154763833722802236/metaavatar.png',
     colorRed: 16711680,
     colorGreen: 7405312,

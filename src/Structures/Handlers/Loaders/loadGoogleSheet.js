@@ -1,23 +1,20 @@
 async function loadGoogleSheet(client, color) {
-    const { GoogleSpreadsheet } = require('google-spreadsheet');
-    const { JWT } = require('google-auth-library');
+    const { doc } = require('../../Untils/googlesheet.js')
     require("dotenv").config();
 
     try {
-        const serviceAccountAuth = new JWT({
-            email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-            key: process.env.GOOGLE_PRIVATE_KEY,
-            scopes: [
-                'https://www.googleapis.com/auth/spreadsheets',
-                'https://www.googleapis.com/auth/drive'
-            ],
-        });
-
-        const doc = new GoogleSpreadsheet(process.env.SPREADSHEET_TABLE_ID, serviceAccountAuth);
         await doc.loadInfo(); // loads document properties and worksheets
+        console.log(`${color.bold.green(`[GOOGLESHEET]`)}` + `Successfully connection to googlesheet!`.yellow);
+        // const sheet = doc.sheetsByIndex[0];
+        // await doc.updateProperties({title: 'Moderatio | META'})
+        // await sheet.addRow({ name: 'Sundar Pichai', email: 'sundar@abc.xyz' });
+        // const rows = await sheet.getRows();
+        // console.log(rows.length);
+        // console.log(rows[0].get('name')); 
+        // console.log(rows[0].get('email')); 
     } catch (error) {
-        console.log(error);
+        console.error('Unable to connect to the googlesheet:', error);
     }
-}
+};
 
 module.exports = { loadGoogleSheet };
