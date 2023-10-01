@@ -35,6 +35,7 @@ module.exports = {
      */
 
     async execute(client, interaction) {
+        await doc.loadInfo();
         const getUser = interaction.options.get('пользователь');
         const getReason = interaction.options.getString('причина');
 
