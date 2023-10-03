@@ -57,12 +57,12 @@ module.exports = {
             case hasBan(Reasons.perm):
                 description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
                 color = Utility.colorGreen
-                expiresAt = new Date(Date.now() + 26000000 * 1000000)
+                expiresAt = new Date(Date.now() + 1000)
                 break;
             case hasBan(Reasons.temp):
                 const permBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 26000000 * 1000000), '**навсегда**']
                 const monthBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), '**на 30 дней**']
-                const records = await History.count({ where: { [Op.and]: [{ target: getUser.user.id }, { reason: getReason }], }, })
+                const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'ban' }, })
                 description = records ? permBan[0] : monthBan[0]
                 color = records ? permBan[1] : monthBan[1]
                 expiresAt = records ? permBan[2] : monthBan[2]
@@ -100,9 +100,8 @@ module.exports = {
                 const rows = await sheet.getRows();
                 const row = rows.find((r) => r._rawData.includes(interaction.user.id))
                 const day = (new Date().getDay() + 1) % 7
-                const cell = sheet.getCell(row.rowNumber - 1, 10 + day * 7) 
-
-                cell.value = Number(cell.value || 0) + 1 
+                const cell = sheet.getCell(row.rowNumber - 1, 10 + day * 7)
+                cell.value = Number(cell.value || 0) + 1
                 sheet.saveUpdatedCells();
 
                 await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
@@ -111,10 +110,5 @@ module.exports = {
         const embed = new EmbedBuilder().setDescription(description).setColor(color).setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
 
         await interaction.editReply({ embeds: [embed] });
-
-        // function unban() {
-        //     await History.findAll({ where: { [Op.lt]: [{ createdAt: expiresAt }] } }) 
-        // }
-        // setInterval(unban, 10000) // 2629800000 - 1 месяц в миллисекундах
     }
 }
