@@ -1,5 +1,6 @@
 const WorkRoles = {
     Ban: "1154769569274150955",
+    Pred: "1159074943913435176",
 }
 
 const StuffRoles = {
@@ -17,6 +18,7 @@ const Utility = {
     guildAvatar: 'https://cdn.discordapp.com/attachments/1129389401630314507/1154763833722802236/metaavatar.png',
     colorRed: 16711680,
     colorGreen: 7405312,
+    colorYellow: 16771840,
     colorDiscord: 2829617,
 
 
