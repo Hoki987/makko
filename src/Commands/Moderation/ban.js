@@ -57,7 +57,7 @@ module.exports = {
             case hasBan(Reasons.perm):
                 description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
                 color = Utility.colorGreen
-                expiresAt = new Date(Date.now() + 1000)
+                expiresAt = new Date(Date.now() + 26000000 * 1000000)
                 break;
             case hasBan(Reasons.temp):
                 const permBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 26000000 * 1000000), '**навсегда**']

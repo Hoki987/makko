@@ -2,9 +2,9 @@
 const { Client } = require("discord.js");
 const { doc } = require('../../Structures/Untils/googlesheet.js');
 const History = require('../../Structures/Models/History.js');
-const { Op, where, and } = require("sequelize");
+const { Op } = require("sequelize");
 const cron = require('node-cron');
-const sequelize = require("../../Structures/Untils/database.js");
+const { WorkRoles } = require('../../../config.js');
 //==========< OTHERS >==========\\
 
 //===========================================< Code >===========================\\
@@ -18,37 +18,7 @@ module.exports = {
     async execute(client,) {
         await doc.loadInfo();
         const sheet = doc.sheetsById[1162940648];
-        // const row = rows.find((r) => r._rawData.includes('баллы за неделю'))
-
-        // const columnBM = await sheet.getCellsInRange('BM4:BM29')
-
-        // let outputBM = [];
-        // columnBM.forEach((valuesBM) => {
-        //     valuesBM.forEach((dataCellBM) => {
-        //         outputBM.push(dataCellBM++)
-        //     })
-        // });
-        // console.log(outputBM);
-
-        // let outputBN = [];
-        // columnBN.forEach((valuesBN) => {
-        //     valuesBN.forEach((dataCellBN) => {
-        //         outputBN.push(dataCellBN++);
-        //     })
-        // });
-        // console.log(outputBN);
-
-        // const combineArrays = [...outputBM].map((e, i) => e += outputBN[i])
-        // console.log(combineArrays);
-
-        // const rows = await sheet.getRows();
-
-        let one = await History.findAll({
-            attributes: ['createdAt'],
-            where: {
-                type: 'ban'
-            }
-        })
+        const hasRole = (id) => getUser.member.roles.cache.has(id);
 
         let two = await History.findAll({
             attributes: ['target', 'reason', 'type', 'expiresAt', 'createdAt'],
@@ -62,7 +32,7 @@ module.exports = {
 
 
 
-        cron.schedule('* * * * *', async () => { })
+
 
 
 
@@ -71,7 +41,8 @@ module.exports = {
         //     let rowIndex = 3
         //     let cell = sheet.getCell(rowIndex, 65)
         //     while (cell.value !== null) {
-        //         cell.formula = `=${sheet.getCell(rowIndex, 64).a1Address} + ${cell.value}`
+        //         cell.formula = `=${sheet.getCell(rowIndex, 64).a1Address} + ${cell.value}`   РАБОЧАЯ ШТУКА, ОТКОМЕНТИТЬ, КОГДА ПОНАДОБИТСЯ
+        
         //         rowIndex++
         //         cell = sheet.getCell(rowIndex, 65)
         //     }
