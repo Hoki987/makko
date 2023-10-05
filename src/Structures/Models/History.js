@@ -16,7 +16,7 @@ const History = sequelize.define(
             type: DataTypes.STRING, // причина наказания
         },
         type: {
-            type: DataTypes.STRING, // ban, mute, warn, pred, banJpg, banCam
+            type: DataTypes.STRING, // ban, mute, warn, pred, banJPG, banCam
             allowNull: false,
         },
         expiresAt: {

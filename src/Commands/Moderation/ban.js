@@ -1,12 +1,12 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { Op } = require('sequelize');
 
 //==========< OTHERS >==========\\
 const { WorkRoles, StuffRoles, Utility, Reasons } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 const { doc } = require('../../Structures/Untils/googlesheet.js')
-//===========================================< Code >===========================\\
+
+//===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("ban")
