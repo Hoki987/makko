@@ -12,7 +12,7 @@ module.exports = {
         .setName("ban")
         .setDescription('Банит выбранного пользователя')
         .setDMPermission(false)
-        .addUserOption((banUser) => banUser.setName("пользователь").setDescription("Выбери пользователя").setRequired(true))
+        .addUserOption((target) => target.setName("пользователь").setDescription("Выбери пользователя").setRequired(true))
         .addStringOption((reason) => reason.setName("причина").setDescription("Введи причину бана").setRequired(true).addChoices(
             { name: 'переход', value: 'переход' }, // бан навсегда
             { name: '4.4', value: '4.4' }, // 2 бана по причине - бан навсегда
@@ -91,23 +91,25 @@ module.exports = {
                     type: 'ban',
                     expiresAt: expiresAt,
                 })
-                await getUser.member.roles.add(WorkRoles.Ban)
-
-                const embedAppel = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили бан ` + AppelDesc).setDescription(`\`\`\`Причина: ${getReason} \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-                const AppelButton = new ButtonBuilder().setCustomId('AppelButton').setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
 
                 await sheet.loadCells()
+
                 const rows = await sheet.getRows();
                 const row = rows.find((r) => r._rawData.includes(interaction.user.id))
                 const day = (new Date().getDay() + 1) % 7
                 const cell = sheet.getCell(row.rowNumber - 1, 10 + day * 7)
+
                 cell.value = Number(cell.value || 0) + 1
                 sheet.saveUpdatedCells();
 
+                const embedAppel = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили бан ` + AppelDesc).setDescription(`\`\`\`Причина: ${getReason} \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+                const AppelButton = new ButtonBuilder().setCustomId('AppelButton').setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+
+                await getUser.member.roles.add(WorkRoles.Ban)
                 await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
                 break;
         }
-        const embed = new EmbedBuilder().setDescription(description).setColor(color).setFooter({ text: 'Сервер:' + Utility.guildName, iconURL: Utility.guildAvatar });
+        const embed = new EmbedBuilder().setColor(color).setDescription(description);
 
         await interaction.editReply({ embeds: [embed] });
     }
