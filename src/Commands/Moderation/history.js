@@ -1,17 +1,17 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, ChatInputCommandInteraction, SlashCommandBuilder  } = require('discord.js');
+const { Client, ChatInputCommandInteraction, SlashCommandBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
 const color = require('colors');
-const {  } = require('../../../config.js');
+const { } = require('../../../config.js');
 
 //===========================================< Code >===========================\\
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("history")
-    .setDescription("Выводит историю нарушений")
-    .setDMPermission(false)
-    .addUserOption((target) => target.setName('пользователь').setDescription("Выбери пользователя").setRequired(true)),
+        .setName("history")
+        .setDescription("Выводит историю нарушений")
+        .setDMPermission(false)
+        .addUserOption((target) => target.setName('пользователь').setDescription("Выбери пользователя").setRequired(true)),
 
     /**
      * @param {Client} client

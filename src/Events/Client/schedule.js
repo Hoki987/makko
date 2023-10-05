@@ -20,15 +20,15 @@ module.exports = {
         const sheet = doc.sheetsById[1162940648];
         const hasRole = (id) => getUser.member.roles.cache.has(id);
 
-        let two = await History.findAll({
-            attributes: ['target', 'reason', 'type', 'expiresAt', 'createdAt'],
-            where: {
-                type: 'ban',
-                expiresAt: {[Op.lt]: Date('createdAt')}
-            }
-        })
+        // let two = await History.findAll({
+        //     attributes: ['target', 'reason', 'type', 'expiresAt', 'createdAt'],
+        //     where: {
+        //         type: 'ban',
+        //         expiresAt: {[Op.lt]: Date('createdAt')}
+        //     }
+        // })
 
-        console.log(two);
+        // console.log(two);
 
 
 
@@ -42,7 +42,7 @@ module.exports = {
         //     let cell = sheet.getCell(rowIndex, 65)
         //     while (cell.value !== null) {
         //         cell.formula = `=${sheet.getCell(rowIndex, 64).a1Address} + ${cell.value}`   РАБОЧАЯ ШТУКА, ОТКОМЕНТИТЬ, КОГДА ПОНАДОБИТСЯ
-        
+
         //         rowIndex++
         //         cell = sheet.getCell(rowIndex, 65)
         //     }
