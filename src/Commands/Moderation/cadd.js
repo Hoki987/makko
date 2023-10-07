@@ -27,6 +27,7 @@ module.exports = {
             const dmembed = new EmbedBuilder().setDescription('**Стафф сервер** - https://discord.gg/W96xcfDUfU').setColor(Utility.colorDiscord)
 
             await sheet.addRow({ Tag: getUser.user.tag, ID: getUser.user.id, Position: 'control', DATE: new Date().toLocaleDateString('ru-Ru') })
+            //.replace(/\./g, '/')
             await interaction.reply({ embeds: [embed] })
             await getUser.user.send({ embeds: [dmembed] })
         } catch (error) {
