@@ -1,9 +1,9 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
 const color = require('colors');
-const { WorkRoles, Utility } = require('../../../config.js');
+const { WorkRoles, Utility, StuffRoles } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 
 const { Op } = require('sequelize');
@@ -23,15 +23,18 @@ module.exports = {
      */
 
     async execute(client, interaction) {
-            const getUser = interaction.options.get('пользователь');
-            const getReason = interaction.options.getString('причина');
-            const hasRole = (id) => getUser.member.roles.cache.has(id);
+        const getUser = interaction.options.get('пользователь');
+        const getReason = interaction.options.getString('причина');
+        const hasRole = (id) => getUser.member.roles.cache.has(id);
 
-            let description
-            let color
+        const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
+        const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
+
+        let description
+        let color
 
         await interaction.deferReply()
-        const countActiveWarn = await History.count({ where: { type: 'warn', expiresAt: { [Op.gt]: new Date() } } })
+        const countActiveWarn = await History.count({ where: { type: 'warn', expiresAt: { [Op.gt]: Date('createdAt') } } })
         switch (true) {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
@@ -40,32 +43,25 @@ module.exports = {
                 color = Utility.colorRed;
                 break;
             case hasRole(WorkRoles.Ban):
-                const activeBan = await History.findOne({
+                const activeBan = await History.findAll({
                     attributes: ['target', 'type', 'expiresAt', 'createdAt'],
                     where: {
                         target: getUser.user.id,
                         type: 'ban',
-                        expiresAt: [{  [Op.gt]: new Date() }, {[Op.is]: null}]
+                        expiresAt: { [Op.gt]: Date('createdAt') }
                     }
                 })
-
-                
                 if (activeBan) {
-                    if (activeBan.expiresAt) {
-                        description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан warn \n\n\`\`\`Причина: ${getReason}\`\`\`**`
-                        History.update({
-                            expiresAt: new Date(activeBan.expiresAt.getTime() + 1000 * 60 * 60 * 24 * 7)
-                        },
-                            {
-                                where: {
-                                    id: activeBan.id
-                                }
+                    description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан warn \n\n\`\`\`Причина: ${getReason}\`\`\`**`
+                    await History.update({
+                        expiresAt: new Date().setDate(activeBan + 604800000)
+                    },
+                        {
+                            where: {
+                                target: getUser.user.id
                             }
-                        )
-                    } else {
-                        description = `**Пользователь забанен навсегда**`
-                        color = Utility.colorRed
-                    }
+                        }
+                    )
                 } else {
                     description = `Пользователь находится в не зарегестрированном бане!`
                     color = Utility.colorRed
@@ -99,16 +95,13 @@ module.exports = {
             default:
                 description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\n\`\`\`Причина: ${getReason}\`\`\`**`
                 color = Utility.colorYellow
-                getUser.member.roles.add(WorkRoles.BanCam)
-            }
 
-            await History.create({
-                executor: interaction.user.id,
-                target: getUser.user.id,
-                reason: getReason,
-                type: 'banCam',
-                expiresAt: new Date(Date.now() + 1209600000), // 14 дней
-            })
+                const sheet = doc.sheetsById[1162940648];
+                await sheet.loadCells()
+                const rows = await sheet.getRows();
+                const row = rows.find((r) => r._rawData.includes(interaction.user.id))
+                const day = (new Date().getDay() + 1) % 7
+                const cell = sheet.getCell(row.rowNumber - 1, 9 + day * 7)
 
             const embed = new EmbedBuilder().setColor(color).setDescription(description)
                 const embedAppel = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили warn на 14 дней`).setDescription(`\`\`\`Причина: ${getReason} \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
@@ -126,3 +119,4 @@ module.exports = {
 
         }
     }
+}
