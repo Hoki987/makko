@@ -43,6 +43,7 @@ const client = new Client({
 
 //======================< Collection >===================\\
 client.slashCommands = new Collection();
+client.buttons = new Collection();
 client.events = new Collection();
 
 //======================< Handlers >===================\\

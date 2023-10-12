@@ -45,5 +45,19 @@ module.exports = {
                 console.log(`${color.bold.red(`[INTERACTION > CREATE CONTEXT : ERROR]`)}` + `${error}.`.bgRed);
             }
         };
+        if (interaction.isButton()) {
+            const command = client.buttons.get(interaction.customId.split('_')[0]);
+            if (!command) {
+                interaction.reply({
+                    ephemeral: true,
+                    content: "This Command is outdated!"
+                });
+            };
+            try {
+                command.execute(client, interaction);
+            } catch (error) {
+                console.log(`${color.bold.red(`[INTERACTION > CREATE SLASH : ERROR]`)}` + `${error}.`.bgRed);
+            }
+        };
     },
 };

@@ -15,6 +15,13 @@ async function loadCommands(client, color) {
             publicCommandsArray.push(command.data.toJSON());
         };
     };
+
+    const buttonFolder = readdirSync(`${process.cwd()}/src/Buttons`);
+    for (const file of buttonFolder) {
+        const command = require(`${process.cwd()}/src/Buttons/${file}`);
+        client.buttons.set(command.data.name, command);
+    };
+
     client.application.commands.set(publicCommandsArray).then(
         console.log(`${color.bold.green(`[GLOBAN COMMANDS]`)}` + `[${publicCommandsArray.length}]`.cyan + `Successfully loaded!`.yellow)
     );

@@ -21,7 +21,7 @@ const History = sequelize.define(
         },
         expiresAt: {
             type: DataTypes.DATE, // когда истекает
-            allowNull: false,
+            allowNull: true,
         },
     },
     {

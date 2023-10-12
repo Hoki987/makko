@@ -37,13 +37,13 @@ module.exports = {
                 getUser.member.roles.add(WorkRoles.BanCam)
             }
 
-            await History.create({
-                executor: interaction.user.id,
-                target: getUser.user.id,
-                reason: getReason,
-                type: 'banCam',
-                expiresAt: new Date(Date.now() + 1209600000), // 14 дней
-            })
+                await History.create({
+                    executor: interaction.user.id,
+                    target: getUser.user.id,
+                    reason: getReason,
+                    type: 'BanCam',
+                    expiresAt: new Date(Date.now() + 1209600000), // 14 дней
+                })
 
             const embed = new EmbedBuilder().setColor(color).setDescription(description)
 

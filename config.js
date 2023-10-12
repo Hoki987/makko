@@ -3,6 +3,7 @@ const WorkRoles = {
     Pred: "1159074943913435176",
     BanCam: "1159178709123743755",
     BanJPG: "1159431090814070794",
+    Mute: ""
 }
 
 const StuffRoles = {
@@ -17,7 +18,7 @@ const Reasons = {
 
 const Utility = {
     StuffServer: '1000307645854519306',
-    guildAvatar: 'https://cdn.discordapp.com/attachments/1129389401630314507/1154763833722802236/metaavatar.png',
+    guildId: '1000307645854519306',
     colorRed: 16711680,
     colorGreen: 7405312,
     colorYellow: 16771840,
@@ -29,4 +30,13 @@ const Utility = {
     fonEmoji: '<:meta_fon:1103228292154282045>'
 }
 
-module.exports = { WorkRoles, StuffRoles, Reasons, Utility };
+const HistoryEmojis = {
+    Ban: "<:ban:1155041800319422555>",
+    Pred: "",
+    BanCam: "",
+    BanJPG: "",
+    Mute: "",
+    Warn: ""
+}
+
+module.exports = { WorkRoles, StuffRoles, Reasons, Utility, HistoryEmojis };

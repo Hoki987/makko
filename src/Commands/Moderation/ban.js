@@ -57,11 +57,11 @@ module.exports = {
             case hasBan(Reasons.perm):
                 description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``
                 color = Utility.colorGreen
-                expiresAt = new Date(Date.now() + 26000000 * 1000000)
+                expiresAt = null
                 break;
             case hasBan(Reasons.temp):
-                const permBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 26000000 * 1000000), '**навсегда**']
-                const monthBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), '**на 30 дней**']
+                const permBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, null, '**навсегда**']
+                const monthBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), '**на 30 дней**']
                 const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'ban' }, })
                 description = records ? permBan[0] : monthBan[0]
                 color = records ? permBan[1] : monthBan[1]
@@ -88,8 +88,8 @@ module.exports = {
                     executor: interaction.user.id,
                     target: getUser.user.id,
                     reason: getReason || null,
-                    type: 'ban',
-                    expiresAt: expiresAt,
+                    type: 'Ban',
+                    expiresAt,
                 })
                 await getUser.member.roles.add(WorkRoles.Ban)
 

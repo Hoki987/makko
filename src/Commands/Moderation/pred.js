@@ -39,13 +39,14 @@ module.exports = {
             }
             const embed = new EmbedBuilder().setColor(color).setDescription(description)
 
-            await History.create({
-                executor: interaction.user.id,
-                target: getUser.user.id,
-                reason: getReason,
-                type: 'pred',
-                expiresAt: new Date(Date.now() + 86400000), // 24 часа
-            })
+
+                await History.create({
+                    executor: interaction.user.id,
+                    target: getUser.user.id,
+                    reason: getReason,
+                    type: 'Pred',
+                    expiresAt: new Date(Date.now() + 86400000), // 24 часа
+                })
 
             const sheet = doc.sheetsById[1162940648];
             await sheet.loadCells()
