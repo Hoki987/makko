@@ -62,7 +62,7 @@ module.exports = {
             case hasBan(Reasons.temp):
                 const permBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен навсегда**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, null, '**навсегда**']
                 const monthBan = [`**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: ${getReason || 'Отсутствует'} \`\`\``, Utility.colorGreen, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), '**на 30 дней**']
-                const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'ban' }, })
+                const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'Ban' }, })
                 description = records ? permBan[0] : monthBan[0]
                 color = records ? permBan[1] : monthBan[1]
                 expiresAt = records ? permBan[2] : monthBan[2]

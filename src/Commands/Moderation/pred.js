@@ -58,7 +58,7 @@ module.exports = {
             cell.value = Number(cell.value || 0) + 1
             sheet.saveUpdatedCells();
 
-            interaction.reply({ embeds: [embed] })
+           await interaction.reply({ embeds: [embed] })
         } catch (error) {
             console.log(`${color.bold.red(`[COMMAND > HISTORY : ERROR]`)}` + `${error}.`.bgRed);
         }

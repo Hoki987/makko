@@ -25,18 +25,18 @@ const Utility = {
     colorDiscord: 2829617,
 
 
-    banEmoji: '<:ban:1155041800319422555>',
+    banEmoji: '<:ban:1163067435281301555>',
     pointEmoji: '<:tochka:1156615794923409488>',
     fonEmoji: '<:meta_fon:1103228292154282045>'
 }
 
 const HistoryEmojis = {
-    Ban: "<:ban:1155041800319422555>",
-    Pred: "",
-    BanCam: "",
-    BanJPG: "",
-    Mute: "",
-    Warn: ""
+    Ban: "<:ban:1163067435281301555>",
+    Pred: "<:pred:1163067430055194684>",
+    BanCam: "<:bancam:1163067438456389692>",
+    BanJPG: "<:banjpg:1163067440226373723>",
+    Mute: "<:mute:1163067443246284800>",
+    Warn: "<:warn:1163067431737106492>"
 }
 
 module.exports = { WorkRoles, StuffRoles, Reasons, Utility, HistoryEmojis };

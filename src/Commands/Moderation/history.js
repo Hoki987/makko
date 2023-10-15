@@ -13,7 +13,7 @@ module.exports = {
         .setName("history")
         .setDescription("Выводит историю нарушений")
         .setDMPermission(false)
-        .addUserOption((target) => target.setName('пользователь').setDescription("Выбери пользователя")), // прописать логику линка
+        .addUserOption((target) => target.setName('пользователь').setDescription("Выбери пользователя")),
 
     /**
      * @param {Client} client
@@ -32,15 +32,15 @@ module.exports = {
             })
             return;
         } else {
-            const wars = history.filter(w => w.type === 'Warn' && w.expiresAt.getTime() > Date.now())
+            const warns = history.filter(w => w.type === 'Warn' && w.expiresAt.getTime() > Date.now())
             const mute = history.find(m => m.type === 'Mute' && m.expiresAt.getTime() > Date.now())
             const banCam = history.find(bc => bc.type === 'BanCam' && bc.expiresAt.getTime() > Date.now())
             const banJPG = history.find(bj => bj.type === 'BanJPG' && bj.expiresAt.getTime() > Date.now())
             const ban = history.find(b => b.type === 'Ban' && b.expiresAt.getTime() > Date.now())
             const pred = history.find(p => p.type === 'Pred' && p.expiresAt.getTime() > Date.now())
 
-            if (wars.length) {
-                description += `Активных варнов: ${wars.length}\n`
+            if (warns.length) {
+                description += `Активных варнов: ${warns.length}\n`
             }
             if (mute) {
                 description += `Мут истекает <t:${Math.floor(mute.expiresAt.getTime() / 1000)}:R>\n`
