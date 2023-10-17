@@ -2,7 +2,7 @@
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 //==========< OTHERS >==========\\
-const { WorkRoles, StuffRoles, Utility, Reasons } = require('../../../config.js');
+const { WorkRoles, StaffRoles, Utility, Reasons } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 const { doc } = require('../../Structures/Untils/googlesheet.js')
 
@@ -44,8 +44,8 @@ module.exports = {
 
         const sheet = doc.sheetsById[1162940648];
 
-        const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
-        const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
+        const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
+        const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
 
         let description;
         let color;

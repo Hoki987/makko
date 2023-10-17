@@ -6,9 +6,23 @@ const WorkRoles = {
     Mute: ""
 }
 
-const StuffRoles = {
+const StaffRoles = {
     Admin: '1154731145552986112',
-    Moderator: '1154731154025488434'
+    Developer: '1163407094691680346',
+    Moderator: '1154731154025488434',
+    Curator: '1163407079168557106',
+    Control: '1163407153273524285',
+    Assistant: '1163407187591299072',
+    EventsMod: '1163407206230798416',
+    MafiaBunkerMod: '1163407227638534217',
+    CloseMod: '1163407253307658271',
+    CreativeMod: '1163407267085955072',
+    ContentMod: '1163407285406674984'
+}
+
+const StaffChats = {
+    Control: '1154731363132514324',
+    Assistant: '1000307646588534786'
 }
 
 const Reasons = {
@@ -39,4 +53,4 @@ const HistoryEmojis = {
     Warn: "<:warn:1163067431737106492>"
 }
 
-module.exports = { WorkRoles, StuffRoles, Reasons, Utility, HistoryEmojis };
+module.exports = { WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats };

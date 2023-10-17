@@ -3,7 +3,7 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, 
 
 //==========< OTHERS >==========\\
 const color = require('colors');
-const { WorkRoles, Utility, StuffRoles } = require('../../../config.js');
+const { WorkRoles, Utility, StaffRoles } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 //===========================================< Code >===========================================\\
 module.exports = {
@@ -24,8 +24,8 @@ module.exports = {
         const getReason = interaction.options.getString('причина');
         const hasRole = (id) => getUser.member.roles.cache.has(id);
 
-        const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
-        const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StuffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
+        const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
+        const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
 
         let description
         let color
