@@ -54,8 +54,7 @@ module.exports = {
         const embed = new EmbedBuilder().setDescription(description + ` <@${getUser.user.id}>`).setColor(Utility.colorDiscord)
         const dmembed = new EmbedBuilder().setDescription('**Стафф сервер** - https://discord.gg/W96xcfDUfU').setColor(Utility.colorDiscord)
 
-        await sheet.addRow({ Tag: getUser.user.tag, ID: getUser.user.id, Position: Position, DATE: new Date().toLocaleDateString('ru-Ru') })
-        //.replace(/\./g, '/')
+        await sheet.addRow({ Tag: getUser.user.tag, ID: getUser.user.id, Position: Position, DATE: new Date().toLocaleDateString('en-US') })
         await interaction.reply({ embeds: [embed] })
         await getUser.user.send({ embeds: [dmembed] })
     }
