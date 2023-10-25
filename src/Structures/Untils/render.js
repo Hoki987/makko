@@ -7,6 +7,7 @@ function renderHistory(data, page, totalPages, description, target, executor) {
     const embed = new EmbedBuilder()
         .setTitle(`История нарушений | ${target.displayName}`)
         .setColor(Utility.colorDiscord)
+        .setThumbnail(target.displayAvatarURL())
         .setFields([{
             name: '```   Тип / Дата   ```',
             value: data.map((p, i) => `**#${(page - 1) * 10 + i + 1}**${HistoryEmojis[p.type]}<t:${Math.round(p.createdAt.getTime() / 1000)}:d>`).join('\n'),

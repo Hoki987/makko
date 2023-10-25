@@ -28,7 +28,7 @@ module.exports = {
         let description = ''
         if (!history.length) {
             await interaction.editReply({
-                embeds: [new EmbedBuilder().setDescription('Пользователь ничего не нарушал').setColor(Utility.colorDiscord)]
+                embeds: [new EmbedBuilder().setTitle(`История нарушений |  ${target.user.username}`).setDescription('**Пользователь ничего не нарушал**').setColor(Utility.colorDiscord).setThumbnail(target.displayAvatarURL())]
             })
             return;
         } else {

@@ -8,8 +8,8 @@ const { StaffChats } = require('../../../config.js')
 //===========================================< Code >===========================\\
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("add")
-        .setDescription("Взять на стафф")
+        .setName("remove")
+        .setDescription("Снять со стаффа")
         .setDMPermission(false)
         .addUserOption((target) => target.setName('пользователь').setDescription("Выбери пользователя").setRequired(true)),
 
@@ -31,31 +31,36 @@ module.exports = {
 
         let staffSheet;
         let description;
-        let Position;
+        let dmdescription;
 
         switch (true) {
             case isControl:
                 await doc.loadInfo()
                 staffSheet = doc.sheetsById[1162940648]
-                description = `Вы взяли на должность Контрола`
-                Position = 'Control'
+                description = `Вы сняли с должности Контрола`
+                dmdescription = `Вы были сняты c должности Контрола`
                 break;
             case isAssistant:
                 await docAssist.loadInfo()
-                description = `Вы взяли на должность Ассистента`
                 staffSheet = docAssist.sheetsById[0]
-                Position = 'Assistant'
+                description = `Вы сняли с должности Ассистента`
+                dmdescription = `Вы были сняты c должности Ассистента`
                 break;
         }
+        try {
+            const getUser = interaction.options.get('пользователь');
+            const sheet = staffSheet;
 
-        const getUser = interaction.options.get('пользователь');
-        const sheet = staffSheet;
+            const embed = new EmbedBuilder().setDescription(description + ` <@${getUser.user.id}>`).setColor(Utility.colorDiscord)
+            const dmembed = new EmbedBuilder().setDescription(dmdescription).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
 
-        const embed = new EmbedBuilder().setDescription(description + ` <@${getUser.user.id}>`).setColor(Utility.colorDiscord)
-        const dmembed = new EmbedBuilder().setDescription('**Стафф сервер** - https://discord.gg/W96xcfDUfU').setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() })
-
-        await sheet.addRow({ Tag: getUser.user.tag, ID: getUser.user.id, Position: Position, Date: new Date().toLocaleDateString('en-US') })
-        await interaction.reply({ embeds: [embed] })
-        await getUser.user.send({ embeds: [dmembed] })
+            const rows = await sheet.getRows();
+            const row = rows.find((r) => r._rawData.includes(interaction.user.id))
+            await row.delete()
+            await interaction.reply({ embeds: [embed] })
+            await getUser.user.send({ embeds: [dmembed] })
+        } catch (error) {
+            await interaction.reply({ embeds: [new EmbedBuilder().setDescription('Пользователь не находится в стаффе!').setColor(Utility.colorRed)] })
+        }
     }
 }

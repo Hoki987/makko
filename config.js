@@ -3,7 +3,7 @@ const WorkRoles = {
     Pred: "1159074943913435176",
     BanCam: "1159178709123743755",
     BanJPG: "1159431090814070794",
-    Mute: ""
+    Mute: "1166431117017104515"
 }
 
 const StaffRoles = {

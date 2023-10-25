@@ -31,6 +31,7 @@ module.exports = {
         }
         const isAssistant = interaction.channel.id === StaffChats.Assistant
         const isControl = interaction.channel.id === StaffChats.Control
+        
         const getUser = interaction.options.get('пользователь');
         const getReason = interaction.options.getString('причина');
         const hasRole = (id) => getUser.member.roles.cache.has(id);
