@@ -43,7 +43,6 @@ module.exports = {
         let color
         let staffSheet;
         let customId;
-        let error = new Error()
 
         await interaction.deferReply()
 
@@ -76,10 +75,10 @@ module.exports = {
                     }
                 })
                 if (activePred) {
-                    description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> не было выдано <@&${WorkRoles.Pred}>\n\n\`\`\`Причина: уже имеется предупреждение\`\`\`**`
+                    description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> не было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется предупреждение[0m\`\`\`**`
                     color = Utility.colorRed
                 } else {
-                    description = `[${HistoryEmojis.Pred}] Активные записи отсутствуют! Предупреждение будет снято.`
+                    description = `**[${HistoryEmojis.Pred}] Активные записи отсутствуют! Предупреждение будет снято.**`
                     color = Utility.colorRed
                     getUser.member.roles.remove(WorkRoles.Pred)
                 }
@@ -97,19 +96,20 @@ module.exports = {
                         cell.value = Number(cell.value || 0) + 1
                         sheet.saveUpdatedCells();
 
-                        description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\n\`\`\`Причина: ${getReason}\`\`\`**`
+                        description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
                         color = Utility.colorYellow
                     }
                 }
                 try {
                     await fetchStaff(interaction.user.id, interaction.options.get('пользователь'), staffSheet)
+                    description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
+                    color = Utility.colorYellow
                 } catch (error) {
                     description = `**Вы не являетесь** \`Контролом / Ассистентом\``
                     color = Utility.colorDiscord
                     break;
                 }
-
-                const embedAppel = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили warn на 14 дней`).setDescription(`\`\`\`Причина: ${getReason} \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+                const embedAppel = new EmbedBuilder().setTitle(`[${HistoryEmojis.Pred}] Вы получили предупреждение на 24 часа`).setDescription(`\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
                 const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
 
                 await History.create({

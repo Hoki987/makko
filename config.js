@@ -3,7 +3,9 @@ const WorkRoles = {
     Pred: "1159074943913435176",
     BanCam: "1159178709123743755",
     BanJPG: "1159431090814070794",
-    Mute: "1166431117017104515"
+    Mute: "1166431117017104515",
+    Male: "1166840904234057870",
+    Female: "1166840884323688498"
 }
 
 const StaffRoles = {
@@ -22,7 +24,8 @@ const StaffRoles = {
 
 const StaffChats = {
     Control: '1154731363132514324',
-    Assistant: '1000307646588534786'
+    Assistant: '1000307646588534786',
+    Logs: '1163407565225476127'
 }
 
 const Reasons = {
