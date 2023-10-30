@@ -2,14 +2,13 @@
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
-const { Utility, StaffChats, StaffRoles } = require('../../../config.js');
+const { Utility, StaffChats, StaffRoles, WorkRoles } = require('../../../config.js');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("arrole")
-        .setDescription("Выдает роль пользователю")
+        .setName("rroles")
+        .setDescription("Очищает роли пользователя")
         .setDMPermission(false)
-        .addRoleOption((role) => role.setName('роль').setDescription("Выбери роль").setRequired(true))
         .addUserOption((target) => target.setName('пользователь').setDescription("Выбери пользователя")),
 
     /**
@@ -18,38 +17,34 @@ module.exports = {
      */
 
     async execute(client, interaction) {
-        const getUser = interaction.options.get('пользователь') || interaction;
-        const getRole = interaction.options.getRole('роль').id;
+        const getUser = interaction.options.get('пользователь');
         const hasRole = (id) => getUser.member.roles.cache.has(id);
 
-        const memberHighestRole = interaction.member.roles.highest.id
-        const memberHighestPositon = interaction.member.roles.cache.filter(r => memberHighestRole.includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
-        const rolePosition = interaction.member.roles.cache.filter(r => getRole.includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
+        const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
+        const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
 
         let description;
         let badDescription
         let color;
 
         await interaction.deferReply()
-
         switch (true) {
+            case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
-            case memberHighestPositon <= rolePosition:
-                badDescription = `\`\`\`Недостаточно прав!\`\`\``;
+            case memberPosition <= targetPosition:
+                description = '**Недостаточно прав!**';
                 color = Utility.colorRed;
                 break;
-            case hasRole(getRole):
-                description = `**Пользователю <@${getUser.user.id}> была \`снята\` роль <@&${getRole}>**`
-                color = Utility.colorDiscord
-                await getUser.member.roles.remove(getRole)
-                break;
-            case !hasRole(getRole):
-                description = `**Пользователю <@${getUser.user.id}> была \`выдана\` роль <@&${getRole}>**`
-                color = Utility.colorDiscord
-                await getUser.member.roles.add(getRole)
+            default:
+                description = `Роли <@${getUser.user.id}> были очищены`
+                color = Utility.colorYellow
+                await getUser.member.roles.cache.forEach(r => {
+                    if (r.id !== '1000307645854519306') {
+                        getUser.member.roles.remove(r.id)
+                    }
+                })
                 break;
         }
-
         const embed = new EmbedBuilder().setDescription(description || badDescription).setColor(color)
 
         if (badDescription) {
