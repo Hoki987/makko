@@ -4,6 +4,10 @@ const WorkRoles = {
     BanCam: "1159178709123743755",
     BanJPG: "1159431090814070794",
     Mute: "1166431117017104515",
+}
+
+const NotRrolls = {
+    Everyone: "1000307645854519306",
     Male: "1168099600213741578",
     Female: "1168099623425032313",
     Loveroom: "1168099628730818610"
@@ -57,4 +61,4 @@ const HistoryEmojis = {
     Warn: "<:warn:1163067431737106492>"
 }
 
-module.exports = { WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats };
+module.exports = { WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, NotRrolls };

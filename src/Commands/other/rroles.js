@@ -2,7 +2,7 @@
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
-const { Utility, StaffChats, StaffRoles, WorkRoles } = require('../../../config.js');
+const { Utility, StaffChats, StaffRoles, WorkRoles, NotRrolls } = require('../../../config.js');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -39,7 +39,9 @@ module.exports = {
                 description = `Роли <@${getUser.user.id}> были очищены`
                 color = Utility.colorYellow
                 await getUser.member.roles.cache.forEach(r => {
-                    if (r.id !== '1000307645854519306') {
+                    if (Object.values(NotRrolls).includes(r.id)) {
+                        return;
+                    } else {
                         getUser.member.roles.remove(r.id)
                     }
                 })
