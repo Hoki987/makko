@@ -1,10 +1,7 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-
+const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 //==========< OTHERS >==========\\
-const { WorkRoles, Utility, StaffChats } = require('../../../config.js');
-const History = require('../../Structures/Models/History.js');
-
+const { UntilsRoles, Utility, StaffChats } = require('../../../config.js');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -27,16 +24,16 @@ module.exports = {
 
         await interaction.deferReply()
         switch (true) {
-            case !hasRole(WorkRoles.Male) && !hasRole(WorkRoles.Female):
-            case hasRole(WorkRoles.Male) && hasRole(WorkRoles.Female):
-            case hasRole(WorkRoles.Female):
-                await getUser.member.roles.remove(WorkRoles.Female) && await getUser.member.roles.add(WorkRoles.Male)
-                description = `**Гендер <@${getUser.user.id}> сменен на <@&${WorkRoles.Male}>**`
+            case !hasRole(UntilsRoles.Male) && !hasRole(UntilsRoles.Female):
+            case hasRole(UntilsRoles.Male) && hasRole(UntilsRoles.Female):
+            case hasRole(UntilsRoles.Female):
+                await getUser.member.roles.remove(UntilsRoles.Female) && await getUser.member.roles.add(UntilsRoles.Male)
+                description = `**Гендер <@${getUser.user.id}> сменен на <@&${UntilsRoles.Male}>**`
                 color = Utility.colorDiscord
                 break;
-            case hasRole(WorkRoles.Male):
-                await getUser.member.roles.remove(WorkRoles.Male) && await getUser.member.roles.add(WorkRoles.Female)
-                description = `**Гендер <@${getUser.user.id}> сменен на <@&${WorkRoles.Female}>**`
+            case hasRole(UntilsRoles.Male):
+                await getUser.member.roles.remove(UntilsRoles.Male) && await getUser.member.roles.add(UntilsRoles.Female)
+                description = `**Гендер <@${getUser.user.id}> сменен на <@&${UntilsRoles.Female}>**`
                 color = Utility.colorDiscord
                 break;
         }

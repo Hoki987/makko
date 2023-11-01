@@ -1,6 +1,5 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, ActionRowBuilder } = require('discord.js');
-
 //==========< OTHERS >==========\\
 const Canvas = require('@napi-rs/canvas');
 const { join } = require("path");

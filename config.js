@@ -6,7 +6,7 @@ const WorkRoles = {
     Mute: "1166431117017104515",
 }
 
-const NotRrolls = {
+const UntilsRoles = {
     Everyone: "1000307645854519306",
     Male: "1168099600213741578",
     Female: "1168099623425032313",
@@ -61,4 +61,4 @@ const HistoryEmojis = {
     Warn: "<:warn:1163067431737106492>"
 }
 
-module.exports = { WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, NotRrolls };
+module.exports = { WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles };

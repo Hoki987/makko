@@ -1,6 +1,5 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require("discord.js");
-
 //===========================================< Code >===========================\\
 module.exports = {
     data: new SlashCommandBuilder()
