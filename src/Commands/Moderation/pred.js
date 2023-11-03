@@ -1,12 +1,10 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-
 //==========< OTHERS >==========\\
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis } = require('../../../config.js');
-const History = require('../../Structures/Models/History.js');
-
-const { Op } = require('sequelize');
 const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
+const { Op } = require('sequelize');
+const History = require('../../Structures/Models/History.js');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -34,13 +32,15 @@ module.exports = {
 
         const getUser = interaction.options.get('пользователь');
         const getReason = interaction.options.getString('причина');
+        const hasRoleExecutor = (id) => interaction.member.roles.cache.has(id);
         const hasRole = (id) => getUser.member.roles.cache.has(id);
 
         const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
         const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
 
-        let description
-        let color
+        let description;
+        let badDescription;
+        let color;
         let staffSheet;
         let customId;
 
@@ -63,7 +63,7 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition:
-                description = '**Недостаточно прав!**';
+                description = `\`\`\`Недостаточно прав!\`\`\``;
                 color = Utility.colorRed;
                 break;
             case hasRole(WorkRoles.Pred):
@@ -84,28 +84,30 @@ module.exports = {
                 }
                 break;
             default:
-                async function fetchStaff(user, getUser, staffSheet) {
-                    if (![StaffRoles.Admin, StaffRoles.Developer, StaffRoles.Moderator, user != '297372127768870913'].includes(user)) {
-                        const sheet = staffSheet;
-                        await sheet.loadCells()
-                        const rows = await sheet.getRows();
-                        const row = rows.find((r) => r._rawData.includes(user))
-                        const day = (new Date().getDay() + 1) % 7
-                        const cell = sheet.getCell(row.rowNumber - 1, 8 + day * 7)
+                async function fetchStaff(user, staffSheet) {
+                    const sheet = staffSheet;
+                    await sheet.loadCells()
+                    const rows = await sheet.getRows();
+                    const row = rows.find((r) => r._rawData.includes(user))
+                    const day = (new Date().getDay() + 1) % 7
+                    const cell = sheet.getCell(row.rowNumber - 1, 8 + day * 7)
 
-                        cell.value = Number(cell.value || 0) + 1
-                        sheet.saveUpdatedCells();
+                    cell.value = Number(cell.value || 0) + 1
+                    sheet.saveUpdatedCells();
+                }
 
+                try {
+                    if (hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || ['295493530548174848', '297372127768870913'].includes(interaction.user.id)) {
+                        description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
+                        color = Utility.colorYellow
+                    } else {
+                        await fetchStaff(interaction.user.id, staffSheet)
                         description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
                         color = Utility.colorYellow
                     }
-                }
-                try {
-                    await fetchStaff(interaction.user.id, interaction.options.get('пользователь'), staffSheet)
-                    description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
-                    color = Utility.colorYellow
                 } catch (error) {
-                    description = `**Вы не являетесь** \`Контролом / Ассистентом\``
+                    console.log(error);
+                    badDescription = `**Вы не являетесь** \`Контролом / Ассистентом\``
                     color = Utility.colorDiscord
                     break;
                 }
@@ -119,11 +121,17 @@ module.exports = {
                     type: 'Pred',
                     expiresAt: new Date(Date.now() + 86400000), // 24 часа
                 })
-                getUser.member.roles.add(WorkRoles.Pred)
+                await getUser.member.roles.add(WorkRoles.Pred)
                 await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
                 break;
         }
-        const embed = new EmbedBuilder().setColor(color).setDescription(description)
-        await interaction.editReply({ embeds: [embed] })
+        console.log(description);
+        console.log(badDescription);
+        const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription)
+        if (badDescription) {
+            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: </pred:1159075761681092658>**`).setFields({ name: "`Пользователь`", value: `<@${interaction.user.id}>`, inline: true }, { name: "`Использовал на`", value: `<@${getUser.user.id}>`, inline: true })] })
+        } else {
+            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })]})
+        }
     }
 }

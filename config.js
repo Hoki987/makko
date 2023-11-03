@@ -46,7 +46,6 @@ const Utility = {
     colorYellow: 16771840,
     colorDiscord: 2829617,
 
-
     banEmoji: '<:ban:1163067435281301555>',
     pointEmoji: '<:tochka:1156615794923409488>',
     fonEmoji: '<:meta_fon:1103228292154282045>'

@@ -1,5 +1,4 @@
-const { EmbedBuilder } = require("@discordjs/builders");
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require("discord.js");
 const { Utility, HistoryEmojis } = require("../../../config")
 
 function renderHistory(data, page, totalPages, description, target, executor) {
