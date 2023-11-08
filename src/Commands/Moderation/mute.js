@@ -3,8 +3,10 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, 
 
 //==========< OTHERS >==========\\
 const color = require('colors');
-const { WorkRoles, Utility, StaffRoles } = require('../../../config.js');
+const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
+const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js')
+const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -27,19 +29,48 @@ module.exports = {
      */
 
     async execute(client, interaction) {
+        const isAssistant = interaction.channel.id === StaffChats.Assistant
+        const isControl = interaction.channel.id === StaffChats.Control
+        
         const getUser = interaction.options.get('пользователь');
         const getTime = interaction.options.get('время');
         const getReason = interaction.options.getString('причина');
+        const hasRoleExecutor = (id) => interaction.member.roles.cache.has(id);
         const hasRole = (id) => getUser.member.roles.cache.has(id);
 
         const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
         const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
 
-        let description
-        let color
-        let time
+        let description;
+        let badDescription;
+        let color;
+        let time;
+        let staffSheet;
+        let customId;
 
         await interaction.deferReply()
+
+        switch (true) {
+            case isControl:
+                staffSheet = 1162940648
+                break;
+            case isAssistant:
+                staffSheet = 0
+                break;
+                default: 
+                staffSheet = null
+                break;
+        }
+        console.log(await fetchStaff(staffSheet, interaction.user.id));
+        await fetchStaff(staffSheet, interaction.user.id) 
+
+        if ([StaffChats.Assistant].includes(interaction.channel.id) && await fetchStaff(0, interaction.user.id) === true || [StaffChats.Control].includes(interaction.channel.id) && await fetchStaff(1162940648, interaction.user.id) === true || !hasRoleExecutor([StaffRoles.Admin, StaffRoles.Developer, StaffRoles.Moderator].includes(interaction.user.id)) || interaction.user.id != [OwnerId.hoki]) {
+            interaction.editReply({
+                content: 'недостаточно прав'
+            })
+        }
+ 
+        
         switch (true) {
             case getTime.value === 30:
                 time = 1800000

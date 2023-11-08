@@ -1,3 +1,7 @@
+const OwnerId = {
+    hoki: '802546453070479361'
+}
+
 const WorkRoles = {
     Ban: "1154769569274150955",
     Pred: "1159074943913435176",
@@ -60,4 +64,4 @@ const HistoryEmojis = {
     Warn: "<:warn:1163067431737106492>"
 }
 
-module.exports = { WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles };
+module.exports = { OwnerId, WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles };
