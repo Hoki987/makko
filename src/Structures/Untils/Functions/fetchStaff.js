@@ -17,7 +17,7 @@ async function fetchStaff(staffSheet, user) {
         const row = rows.find((r) => r._rawData.includes(user))
         return row != undefined
     }
-    return null
+    return true;
 }
 
 module.exports = { fetchStaff }

@@ -7,6 +7,7 @@ const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId } = r
 const History = require('../../Structures/Models/History.js');
 const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js')
 const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
+const { Op } = require('sequelize');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -29,9 +30,10 @@ module.exports = {
      */
 
     async execute(client, interaction) {
+
         const isAssistant = interaction.channel.id === StaffChats.Assistant
         const isControl = interaction.channel.id === StaffChats.Control
-        
+
         const getUser = interaction.options.get('пользователь');
         const getTime = interaction.options.get('время');
         const getReason = interaction.options.getString('причина');
@@ -49,7 +51,7 @@ module.exports = {
         let customId;
 
         await interaction.deferReply()
-
+        console.log(countActiveMute);
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
@@ -57,20 +59,11 @@ module.exports = {
             case isAssistant:
                 staffSheet = 0
                 break;
-                default: 
+            default:
                 staffSheet = null
                 break;
         }
-        console.log(await fetchStaff(staffSheet, interaction.user.id));
-        await fetchStaff(staffSheet, interaction.user.id) 
 
-        if ([StaffChats.Assistant].includes(interaction.channel.id) && await fetchStaff(0, interaction.user.id) === true || [StaffChats.Control].includes(interaction.channel.id) && await fetchStaff(1162940648, interaction.user.id) === true || !hasRoleExecutor([StaffRoles.Admin, StaffRoles.Developer, StaffRoles.Moderator].includes(interaction.user.id)) || interaction.user.id != [OwnerId.hoki]) {
-            interaction.editReply({
-                content: 'недостаточно прав'
-            })
-        }
- 
-        
         switch (true) {
             case getTime.value === 30:
                 time = 1800000
@@ -89,38 +82,72 @@ module.exports = {
                 break;
         }
 
-        switch (true) {
-            case interaction.user.id === getUser.member.id:
-            case getUser.user.bot:
-            case memberPosition <= targetPosition:
-                description = '**Недостаточно прав!**';
-                color = Utility.colorRed;
-                break;
-            case hasRole(WorkRoles.Mute):
-                description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> не было выдано <@&${WorkRoles.Mute}>\n\n\`\`\`Причина: уже имеется Мут\`\`\`**`
-                color = Utility.colorRed
-                break;
-            default:
-                description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\n\`\`\`Причина: ${getReason}\`\`\`**`
-                color = Utility.colorYellow
 
-                await History.create({
-                    executor: interaction.user.id,
-                    target: getUser.user.id,
-                    reason: getReason,
-                    type: 'Mute',
-                    expiresAt: new Date(Date.now() + time),
-                })
+        console.log(await fetchStaff(staffSheet, interaction.user.id));
+        console.log(!hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator));
+        console.log(![OwnerId.hoki].includes(interaction.user.id));
 
-                const embedAppel = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили Мут на ${getTime.name}`).setDescription(`\`\`\`Причина: ${getReason} \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-                const AppelButton = new ButtonBuilder().setCustomId('AppelButton').setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+        if (![OwnerId.hoki].includes(interaction.user.id)) {
+            switch (true) {
+                case [StaffChats.Assistant].includes(interaction.channel.id) && await fetchStaff(0, interaction.user.id) === false:
+                case [StaffChats.Control].includes(interaction.channel.id) && await fetchStaff(1162940648, interaction.user.id) === false:
+                case !hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                case interaction.user.id === getUser.member.id:
+                case getUser.user.bot:
+                case memberPosition <= targetPosition:
+                    description = `\`\`\`Недостаточно прав!\`\`\``;
+                    color = Utility.colorDiscord;
+                    break;
+                case hasRole(WorkRoles.Mute):
+                    description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> не был выдан <@&${WorkRoles.Mute}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется мут[0m\`\`\`**`
+                    color = Utility.colorDiscord;
+                    break;
+                default:
+                    const countActiveMute = await History.count({ where: { target: getUser.user.id, type: 'Mute', createdAt: { [Op.gt]: new Date(new Date().getTime() - 864000000), } } })
+                    const countActiveWarn = History.count({ where: { target: getUser.user.id, type: 'Warn', expiresAt: { [Op.lt]: new Date() } } })
 
-                await getUser.member.roles.add(WorkRoles.Mute)
-                await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
-                break;
+                    description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\n\`\`\`Причина: ${getReason}\`\`\`**`
+                    color = Utility.colorYellow
+
+                    switch (true) {
+                        case countActiveMute >= 3:
+                            
+                            break;
+                    
+                        default:
+                            break;
+                    }
+                    await History.create({
+                        executor: interaction.user.id,
+                        target: getUser.user.id,
+                        reason: getReason,
+                        type: 'Mute',
+                        expiresAt: new Date(Date.now() + time),
+                    })
+                    break;
+            }
         }
-        const embed = new EmbedBuilder().setColor(color).setDescription(description)
+        // switch (true) {
+        //     default:
+        //         description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\n\`\`\`Причина: ${getReason}\`\`\`**`
+        //         color = Utility.colorYellow
 
+        //         await History.create({
+        //             executor: interaction.user.id,
+        //             target: getUser.user.id,
+        //             reason: getReason,
+        //             type: 'Mute',
+        //             expiresAt: new Date(Date.now() + time),
+        //         })
+
+        //         const embedAppel = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили Мут на ${getTime.name}`).setDescription(`\`\`\`Причина: ${getReason} \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+        //         const AppelButton = new ButtonBuilder().setCustomId('AppelButton').setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+
+        //         await getUser.member.roles.add(WorkRoles.Mute)
+        //         await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
+        //         break;
+        // }
+        const embed = new EmbedBuilder().setColor(color).setDescription(description)
         await interaction.editReply({ embeds: [embed] })
     }
 }
