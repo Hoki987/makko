@@ -2,7 +2,7 @@
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
-const { WorkRoles, Utility, StaffRoles, StaffChats } = require('../../../config.js');
+const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, CommandsLogsID } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 
 const { Op } = require('sequelize');
@@ -42,8 +42,10 @@ module.exports = {
 
         let description;
         let badDescription;
+        let nonExistDescription;
         let color;
         let staffSheet;
+        let customId;
 
         await interaction.deferReply()
 
@@ -51,10 +53,12 @@ module.exports = {
             case isControl:
                 await doc.loadInfo()
                 staffSheet = doc.sheetsById[1162940648]
+                customId = 'ControlAppelButton'
                 break;
             case isAssistant:
                 await docAssist.loadInfo()
                 staffSheet = docAssist.sheetsById[0]
+                customId = 'AssistAppelButton'
                 break;
         }
 
@@ -84,12 +88,12 @@ module.exports = {
             sheet.saveUpdatedCells();
         }
         const countActiveWarn = await History.count({ where: { type: 'Warn', expiresAt: { [Op.gt]: new Date() } } })
-        switch (true) {    
+        switch (true) {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition:
                 badDescription = `\`\`\`Недостаточно прав!\`\`\``;
-                color = Utility.colorRed;
+                color = Utility.colorDiscord;
                 break;
             case hasRole(WorkRoles.Ban):
                 const findPermBan = await History.findOne({
@@ -113,40 +117,40 @@ module.exports = {
                 } else {
                     switch (true) {
                         case activeBan === null:
-                            description = `\`\`\`Пользователь находится в не зарегестрированном бане!\`\`\``
+                            nonExistDescription = `\`\`\`Пользователь находится в не зарегестрированном бане!\`\`\``
                             color = Utility.colorRed
                             break;
                         default:
                             try {
                                 if (hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || ['295493530548174848'].includes(interaction.user.id)) {
-                                    description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан warn \n\n\`\`\`Причина: ${getReason}\`\`\`**`
+                                    description = `**[${HistoryEmojis.Warn}] Пользователю <@${getUser.user.id}> был выдан warn \n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
                                     color = Utility.colorRed
                                 } else {
                                     await Warn(interaction.user.id);
-                                    description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан warn \n\n\`\`\`Причина: ${getReason}\`\`\`**`
+                                    description = `**[${HistoryEmojis.Warn}] Пользователю <@${getUser.user.id}> был выдан warn \n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
                                     color = Utility.colorRed
                                 }
-                                History.update({
-                                    expiresAt: new Date(activeBan.expiresAt.getTime() + 1000 * 60 * 60 * 24 * 7)
-                                },
-                                    {
-                                        where: {
-                                            id: activeBan.id
-                                        }
-                                    }
-                                )
-                                await History.create({
-                                    executor: interaction.user.id,
-                                    target: getUser.user.id,
-                                    reason: getReason,
-                                    type: 'Warn',
-                                    expiresAt: new Date(Date.now()), // 14 дней
-                                })
                             } catch (error) {
                                 badDescription = `**Вы не являетесь** \`Контролом / Ассистентом\``
                                 color = Utility.colorDiscord
                                 break;
                             }
+                            History.update({
+                                expiresAt: new Date(activeBan.expiresAt.getTime() + 1000 * 60 * 60 * 24 * 7)
+                            },
+                                {
+                                    where: {
+                                        id: activeBan.id
+                                    }
+                                }
+                            )
+                            await History.create({
+                                executor: interaction.user.id,
+                                target: getUser.user.id,
+                                reason: getReason,
+                                type: 'Warn',
+                                expiresAt: new Date(Date.now()), // 14 дней
+                            })
                             break;
                     }
                 }
@@ -154,59 +158,64 @@ module.exports = {
             case countActiveWarn >= 2:
                 try {
                     if (hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || ['295493530548174848'].includes(interaction.user.id)) {
-                        description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: 4.3 \`\`\``
+                        description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m4.3[0m\`\`\``
                         color = Utility.colorGreen
                     } else {
-                        description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`Причина: 4.3 \`\`\``
-                        color = Utility.colorGreen
                         await WarnAndBan(interaction.user.id);
+                        description = `**[${Utility.banEmoji}]** Пользователь ${getUser.user} был **забанен на 30 дней**\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m4.3[0m\`\`\``
+                        color = Utility.colorGreen
                     }
-                    await History.create({ executor: interaction.user.id, target: getUser.user.id, reason: '4.3', type: 'Warn', expiresAt: new Date(Date.now() + 1209600000), })
-                    await History.create({ executor: interaction.user.id, target: getUser.user.id, reason: '4.3', type: 'Ban', expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), })
-
-                    const embedAppelBan = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили бан на 30 дней`).setDescription(`\`\`\`Причина: 4.3 \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-                    const AppelButtonBan = new ButtonBuilder().setCustomId('AppelButton').setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
-
-                    await getUser.member.roles.add(WorkRoles.Ban)
-                    await getUser.user.send({ embeds: [embedAppelBan], components: [new ActionRowBuilder().addComponents(AppelButtonBan)] });
                 } catch (error) {
                     badDescription = `**Вы не являетесь** \`Контролом / Ассистентом\``
                     color = Utility.colorDiscord
                     break;
                 }
+                await History.create({ executor: interaction.user.id, target: getUser.user.id, reason: '4.3', type: 'Warn', expiresAt: new Date(Date.now() + 1209600000), })
+                await History.create({ executor: interaction.user.id, target: getUser.user.id, reason: '4.3', type: 'Ban', expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), })
+
+                const embedAppelBan = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили бан на 30 дней`).setDescription(`\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m4.3[0m\`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+                const AppelButtonBan = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+
+                await getUser.member.roles.add(WorkRoles.Ban)
+                await getUser.user.send({ embeds: [embedAppelBan], components: [new ActionRowBuilder().addComponents(AppelButtonBan)] });
                 break;
             default:
                 try {
                     if (hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || ['295493530548174848'].includes(interaction.user.id)) {
-                        description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан warn \n\n\`\`\`Причина: ${getReason}\`\`\`**`
+                        description = `**[${HistoryEmojis.Warn}] Пользователю <@${getUser.user.id}> был выдан warn \n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
                         color = Utility.colorRed
                     } else {
                         await Warn(interaction.user.id);
-                        description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан warn \n\n\`\`\`Причина: ${getReason}\`\`\`**`
+                        description = `**[${HistoryEmojis.Warn}] Пользователю <@${getUser.user.id}> был выдан warn \n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
                         color = Utility.colorRed
                     }
-                    const embedAppel = new EmbedBuilder().setTitle(`[${Utility.banEmoji}] Вы получили warn на 14 дней`).setDescription(`\`\`\`Причина: ${getReason} \`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-                    const AppelButton = new ButtonBuilder().setCustomId('AppelButton').setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
-
-                    await History.create({
-                        executor: interaction.user.id,
-                        target: getUser.user.id,
-                        reason: getReason,
-                        type: 'Warn',
-                        expiresAt: new Date(Date.now() + 1209600000), // 14 дней
-                    })
-                    await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
                 } catch (error) {
+                    console.log(error);
                     badDescription = `**Вы не являетесь** \`Контролом / Ассистентом\``
                     color = Utility.colorDiscord
                     break;
                 }
+                const embedAppel = new EmbedBuilder().setTitle(`[${HistoryEmojis.Warn}] Вы получили warn на 14 дней`).setDescription(`\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+                const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+
+                await History.create({
+                    executor: interaction.user.id,
+                    target: getUser.user.id,
+                    reason: getReason,
+                    type: 'Warn',
+                    expiresAt: new Date(Date.now() + 1209600000), // 14 дней
+                })
+                await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
                 break;
-            }
-        const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription)
+        }
+        const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription || nonExistDescription)
+        if (nonExistDescription) {
+            await interaction.editReply({ embeds: [embed.setFooter({ iconURL: client.user.displayAvatarURL(), text: `${client.user.displayName} | Рекомендуется снять роль Бана!` })] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Warn}**`).setFields({ name: "`Пользователь`", value: `<@${interaction.user.id}>`, inline: true }, { name: "`Использовал на`", value: `<@${getUser.user.id}>`, inline: true }).setFooter({ iconURL: client.user.displayAvatarURL(), text: `${client.user.displayName} | Рекомендуется снять роль Бана!` })] })
+        }
         if (badDescription) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: </pred:1159075761681092658>**`).setFields({ name: "`Пользователь`", value: `<@${interaction.user.id}>`, inline: true }, { name: "`Использовал на`", value: `<@${getUser.user.id}>`, inline: true })] })
-        } else {
+            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Warn}**`).setFields({ name: "`Пользователь`", value: `<@${interaction.user.id}>`, inline: true }, { name: "`Использовал на`", value: `<@${getUser.user.id}>`, inline: true })] })
+        }
+        if (description) {
             await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })] })
         }
     }
