@@ -62,6 +62,7 @@ client.login(process.env.TOKEN).then(() => {
     loadCommands(client, color);
 })
     .catch(err => {
+        console.log(err);
         console.log(`${color.bold.red(`[INDEX ERROR] `)}` + `${err}.`.bgRed);
     });
 module.exports = client;

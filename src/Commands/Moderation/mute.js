@@ -6,7 +6,7 @@ const color = require('colors');
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js')
-const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
+const { action, MuteWarnBan } = require('../../Structures/Untils/Functions/action.js')
 const { Op } = require('sequelize');
 //===========================================< Code >===========================================\\
 module.exports = {
@@ -45,87 +45,224 @@ module.exports = {
 
         let description;
         let badDescription;
+        let ComplexDescription;
+        let fields;
         let color;
         let time;
         let staffSheet;
         let customId;
 
         await interaction.deferReply()
-        console.log(countActiveMute);
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
+                customId = 'ControlAppelButton'
                 break;
             case isAssistant:
                 staffSheet = 0
+                customId = 'AssistAppelButton'
+                break;
+            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
+                staffSheet = null
+                customId = 'AdminAppelButton'
                 break;
             default:
-                staffSheet = null
+                staffSheet = undefined
                 break;
         }
 
         switch (true) {
             case getTime.value === 30:
-                time = 1800000
+                time = getTime.value * 60000
                 break;
             case getTime.value === 45:
-                time = 2700000
+                time = getTime.value * 60000
                 break;
             case getTime.value === 60:
-                time = 3600000
+                time = getTime.value * 60000
                 break;
             case getTime.value === 75:
-                time = 4500000
+                time = getTime.value * 60000
                 break;
             case getTime.value === 90:
-                time = 5400000
+                time = getTime.value * 60000
                 break;
         }
+        switch (true) {
+            case staffSheet === undefined:
+            case interaction.user.id === getUser.member.id:
+            case getUser.user.bot:
+            case memberPosition <= targetPosition:
+                description = `\`\`\`Недостаточно прав!\`\`\``;
+                color = Utility.colorDiscord;
+                break;
+            case hasRole(WorkRoles.Mute):
+                description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> не был выдан <@&${WorkRoles.Mute}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется мут[0m\`\`\`**`
+                color = Utility.colorDiscord;
+                break;
+            default:
+                const countActiveMute = await History.count({ where: { target: getUser.user.id, type: 'Mute', createdAt: { [Op.gt]: new Date(new Date().getTime() - 864000000), } } })
+                const countActiveWarn = History.count({ where: { target: getUser.user.id, type: 'Warn', expiresAt: { [Op.lt]: new Date() } } })
 
+                const Mute = await History.create({ executor: interaction.user.id, target: getUser.user.id, reason: getReason, type: 'Mute', expiresAt: new Date(Date.now() + time), })
+                const Warn = await History.create({ executor: interaction.user.id, target: getUser.user.id, reason: getReason, type: 'Warn', expiresAt: new Date(Date.now() + 1209600000), })
+                const Ban = await History.create({ executor: interaction.user.id, target: getUser.user.id, reason: getReason, type: 'Ban', expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), })
 
-        console.log(await fetchStaff(staffSheet, interaction.user.id));
-        console.log(!hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator));
-        console.log(![OwnerId.hoki].includes(interaction.user.id));
-
-        if (![OwnerId.hoki].includes(interaction.user.id)) {
-            switch (true) {
-                case [StaffChats.Assistant].includes(interaction.channel.id) && await fetchStaff(0, interaction.user.id) === false:
-                case [StaffChats.Control].includes(interaction.channel.id) && await fetchStaff(1162940648, interaction.user.id) === false:
-                case !hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
-                case interaction.user.id === getUser.member.id:
-                case getUser.user.bot:
-                case memberPosition <= targetPosition:
-                    description = `\`\`\`Недостаточно прав!\`\`\``;
-                    color = Utility.colorDiscord;
-                    break;
-                case hasRole(WorkRoles.Mute):
-                    description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> не был выдан <@&${WorkRoles.Mute}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется мут[0m\`\`\`**`
-                    color = Utility.colorDiscord;
-                    break;
-                default:
-                    const countActiveMute = await History.count({ where: { target: getUser.user.id, type: 'Mute', createdAt: { [Op.gt]: new Date(new Date().getTime() - 864000000), } } })
-                    const countActiveWarn = History.count({ where: { target: getUser.user.id, type: 'Warn', expiresAt: { [Op.lt]: new Date() } } })
-
-                    description = `**[<:pred:1159081335349063720>] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\n\`\`\`Причина: ${getReason}\`\`\`**`
-                    color = Utility.colorYellow
-
-                    switch (true) {
-                        case countActiveMute >= 3:
-                            
-                            break;
-                    
-                        default:
-                            break;
-                    }
-                    await History.create({
-                        executor: interaction.user.id,
-                        target: getUser.user.id,
-                        reason: getReason,
-                        type: 'Mute',
-                        expiresAt: new Date(Date.now() + time),
-                    })
-                    break;
-            }
+                // description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36${getReason}[0m\`\`\`**`
+                // color = Utility.colorYellow
+                switch (true) {
+                    case countActiveMute >= 2:
+                        switch (staffSheet) {
+                            case 0:
+                                switch (true) {
+                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                    case [OwnerId.hoki].includes(interaction.user.id):
+                                        if (countActiveWarn >= 2) {
+                                            Mute, Warn, Ban
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }
+                                        } else {
+                                            Mute, Warn
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }
+                                        }
+                                        break;
+                                    case await fetchStaff(staffSheet, interaction.user.id) === true:
+                                        if (countActiveWarn >= 2) {
+                                            await MuteWarnBan(staffSheet, interaction.user.id, true)
+                                            Mute, Warn, Ban
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }
+                                        } else {
+                                            await MuteWarnBan(staffSheet, interaction.user.id, false)
+                                            Mute, Warn
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }
+                                        }
+                                        break;
+                                    default:
+                                        description = `\`\`\`Недостаточно прав!\`\`\``;
+                                        color = Utility.colorDiscord;
+                                        break;
+                                }
+                                break;
+                            case 1162940648:
+                                switch (true) {
+                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                    case [OwnerId.hoki].includes(interaction.user.id):
+                                        if (countActiveWarn >= 2) {
+                                            Mute, Warn, Ban
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }
+                                        } else {
+                                            Mute, Warn
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }
+                                        }
+                                        break;
+                                    case await fetchStaff(staffSheet, interaction.user.id) === true:
+                                        if (countActiveWarn >= 2) {
+                                            await MuteWarnBan(staffSheet, interaction.user.id, true)
+                                            Mute, Warn, Ban
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }
+                                        } else {
+                                            await MuteWarnBan(staffSheet, interaction.user.id, false)
+                                            Mute, Warn
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }
+                                        }
+                                        break;
+                                    default:
+                                        description = `\`\`\`Недостаточно прав!\`\`\``;
+                                        color = Utility.colorDiscord;
+                                        break;
+                                }
+                                break;
+                            case null:
+                                switch (true) {
+                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                    case [OwnerId.hoki].includes(interaction.user.id):
+                                        if (countActiveWarn >= 2) {
+                                            Mute, Warn, Ban
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }
+                                        } else {
+                                            Mute, Warn
+                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю ${getUser.user.id} был выдан:**`
+                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }
+                                        }
+                                        break;
+                                    default:
+                                        description = `\`\`\`Недостаточно прав!\`\`\``;
+                                        color = Utility.colorDiscord;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    default:
+                        switch (staffSheet) {
+                            case 0:
+                                switch (true) {
+                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                        description =
+                                            color =
+                                            Mute
+                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        break;
+                                    case await fetchStaff(staffSheet, interaction.user.id) === true:
+                                        await action(staffSheet, interaction.user.id, 7)
+                                        description =
+                                            color =
+                                            Mute
+                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        break;
+                                    default:
+                                        description = `\`\`\`Недостаточно прав!\`\`\``;
+                                        color = Utility.colorDiscord;
+                                        break;
+                                }
+                                break;
+                            case 1162940648:
+                                switch (true) {
+                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                        description =
+                                            color =
+                                            Mute
+                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        break;
+                                    case await fetchStaff(staffSheet, interaction.user.id) === true:
+                                        await action(staffSheet, interaction.user.id, 7)
+                                        description =
+                                            color =
+                                            Mute
+                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        break;
+                                    default:
+                                        description = `\`\`\`Недостаточно прав!\`\`\``;
+                                        color = Utility.colorDiscord;
+                                        break;
+                                }
+                                break;
+                            case null:
+                                switch (true) {
+                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                        description =
+                                            color =
+                                            Mute
+                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        break;
+                                    default:
+                                        description = `\`\`\`Недостаточно прав!\`\`\``;
+                                        color = Utility.colorDiscord;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
         }
         // switch (true) {
         //     default:

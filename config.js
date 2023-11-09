@@ -1,5 +1,5 @@
 const OwnerId = {
-    hoki: '297372127768870913'
+    hoki: ''
 }
 
 const WorkRoles = {
