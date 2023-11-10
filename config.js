@@ -64,4 +64,8 @@ const HistoryEmojis = {
     Warn: "<:warn:1163067431737106492>"
 }
 
-module.exports = { OwnerId, WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles };
+const CommandsLogsID = {
+    Mute: '</mute:1170111146863370383>'
+}
+
+module.exports = { OwnerId, WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID };
