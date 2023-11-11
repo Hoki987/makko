@@ -1,5 +1,5 @@
 const OwnerId = {
-    hoki: '297372127768870913'
+    hoki: ''
 }
 
 const WorkRoles = {
@@ -14,7 +14,8 @@ const UntilsRoles = {
     Everyone: "1000307645854519306",
     Male: "1168099600213741578",
     Female: "1168099623425032313",
-    Loveroom: "1168099628730818610"
+    Loveroom: "1168099628730818610",
+    Ban: "1154769569274150955"
 }
 
 const StaffRoles = {
@@ -65,7 +66,8 @@ const HistoryEmojis = {
 }
 
 const CommandsLogsID = {
-    Mute: '</mute:1170111146863370383>'
+    Mute: '</mute:1170111146863370383>',
+    Pred: '</pred:1170111146863370384>'
 }
 
 module.exports = { OwnerId, WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID };

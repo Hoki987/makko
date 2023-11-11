@@ -2,8 +2,7 @@
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
-const color = require('colors');
-const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID } = require('../../../config.js');
+const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID, UntilsRoles } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js');
 const { action, MuteWarnBan } = require('../../Structures/Untils/Functions/action.js');
@@ -45,13 +44,29 @@ module.exports = {
         const hasRole = (id) => getUser.member.roles.cache.has(id);
 
         let color;
-        let description;
-        let badDescription;
-        let ComplexDescription;
         let fields;
         let customId;
         let staffSheet;
         let time;
+
+        let description;
+        let badDescription;
+        let ComplexDescription;
+
+        const text = {
+            standart: `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.value} минут\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`,
+            badOne: `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> не был выдан <@&${WorkRoles.Mute}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется мут[0m\`\`\`**`,
+            badTwo: `\`\`\`Недостаточно прав!\`\`\``,
+            ComplexOne: `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban}]** **Пользователю <@${getUser.user.id}> был выдан:**`,
+            ComplexTwo: `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю <@${getUser.user.id}> был выдан:**`,
+            Appel: `\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`
+        }
+
+        const field = {
+            Bad: [{ name: "```   Субъект   ```", value: `<@${interaction.user.id}>`, inline: true }, { name: "```   Объект   ```", value: `<@${getUser.user.id}>`, inline: true }],
+            MuteWarn: [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${getTime.value} минут`, inline: true }, { name: "```      Варн      ```", value: `Причина: 4.3\nВремя: 14 дней`, inline: true }],
+            BanWarnMute: [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${getTime.value} минут`, inline: true }, { name: "```      Варн      ```", value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: "```      Бан      ```", value: `Причина: 4.3\nВремя: 30 дней`, inline: true }]
+        }
 
         await interaction.deferReply()
         switch (true) {
@@ -92,14 +107,15 @@ module.exports = {
             case staffSheet === undefined:
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
-            case memberPosition <= targetPosition:
-                badDescription = `\`\`\`Недостаточно прав!\`\`\``;
-                fields = [{ name: `   Субъект   `, value: `<@${interaction.user.id}>`, inline: true }, { name: `   Объект   `, value: `<@${getUser.user.id}>`, inline: true }]
+            case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
+            case hasRole(WorkRoles.Mute) && await fetchStaff(staffSheet, interaction.user.id) === false:
+                badDescription = text.badTwo;
+                fields = field.Bad
                 color = Utility.colorDiscord;
                 break;
             case hasRole(WorkRoles.Mute):
-                badDescription = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> не был выдан <@&${WorkRoles.Mute}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется мут[0m\`\`\`**`
-                fields = [{ name: `   Субъект   `, value: `<@${interaction.user.id}>`, inline: true }, { name: `   Объект   `, value: `<@${getUser.user.id}>`, inline: true }]
+                badDescription = text.badOne
+                fields = field.Bad
                 color = Utility.colorDiscord;
                 break;
             default:
@@ -110,23 +126,28 @@ module.exports = {
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
-                                        console.log('1');
-                                        console.log(await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }));
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexOne
                                             color = Utility.colorDiscord
-                                            fields = [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }]
-                                            getUser.member.roles.add(WorkRoles.Ban && WorkRoles.Mute)
+                                            fields = field.BanWarnMute
+                                            await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
+                                            await getUser.member.roles.cache.forEach(r => {
+                                                if (Object.values(UntilsRoles).includes(r.id)) {
+                                                    return;
+                                                } else {
+                                                    getUser.member.roles.remove(r.id)
+                                                }
+                                            })
                                         } else {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexTwo
                                             color = Utility.colorDiscord
-                                            fields = [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }]
-                                            getUser.member.roles.add(WorkRoles.Mute)
+                                            fields = field.MuteWarn
+                                            await getUser.member.roles.add(WorkRoles.Mute)
                                         }
                                         break;
                                     case await fetchStaff(staffSheet, interaction.user.id) === true:
@@ -135,23 +156,30 @@ module.exports = {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexOne
                                             color = Utility.colorDiscord
-                                            fields = [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }]
-                                            getUser.member.roles.add(WorkRoles.Ban && WorkRoles.Mute)
+                                            fields = field.BanWarnMute
+                                            await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
+                                            await getUser.member.roles.cache.forEach(r => {
+                                                if (Object.values(UntilsRoles).includes(r.id)) {
+                                                    return;
+                                                } else {
+                                                    getUser.member.roles.remove(r.id)
+                                                }
+                                            })
                                         } else {
                                             await MuteWarnBan(staffSheet, interaction.user.id, false)
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexTwo
                                             color = Utility.colorDiscord
-                                            fields = [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }]
-                                            getUser.member.roles.add(WorkRoles.Mute)
+                                            fields = field.MuteWarn
+                                            await getUser.member.roles.add(WorkRoles.Mute)
                                         }
                                         break;
                                     default:
-                                        fields = [{ name: `   Субъект   `, value: `<@${interaction.user.id}>`, inline: true }, { name: `   Объект   `, value: `<@${getUser.user.id}>`, inline: true }]
-                                        badDescription = `\`\`\`Недостаточно прав!\`\`\``;
+                                        fields = field.Bad
+                                        badDescription = text.badTwo;
                                         color = Utility.colorDiscord;
                                         break;
                                 }
@@ -164,17 +192,24 @@ module.exports = {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexOne
                                             color = Utility.colorDiscord
-                                            fields = [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }]
-                                            getUser.member.roles.add(WorkRoles.Ban && WorkRoles.Mute)
+                                            fields = field.BanWarnMute
+                                            await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
+                                            await getUser.member.roles.cache.forEach(r => {
+                                                if (Object.values(UntilsRoles).includes(r.id)) {
+                                                    return;
+                                                } else {
+                                                    getUser.member.roles.remove(r.id)
+                                                }
+                                            })
                                         } else {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexTwo
                                             color = Utility.colorDiscord
-                                            fields = [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }]
-                                            getUser.member.roles.add(WorkRoles.Mute)
+                                            fields = field.MuteWarn
+                                            await getUser.member.roles.add(WorkRoles.Mute)
                                         }
                                         break;
                                     case await fetchStaff(staffSheet, interaction.user.id) === true:
@@ -183,23 +218,30 @@ module.exports = {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexOne
                                             color = Utility.colorDiscord
-                                            fields = [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }]
-                                            getUser.member.roles.add(WorkRoles.Ban && WorkRoles.Mute)
+                                            fields = field.BanWarnMute
+                                            await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
+                                            await getUser.member.roles.cache.forEach(r => {
+                                                if (Object.values(UntilsRoles).includes(r.id)) {
+                                                    return;
+                                                } else {
+                                                    getUser.member.roles.remove(r.id)
+                                                }
+                                            })
                                         } else {
                                             await MuteWarnBan(staffSheet, interaction.user.id, false)
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexTwo
                                             color = Utility.colorDiscord
-                                            fields = [{ name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }]
-                                            getUser.member.roles.add(WorkRoles.Mute)
+                                            fields = field.MuteWarn
+                                            await getUser.member.roles.add(WorkRoles.Mute)
                                         }
                                         break;
                                     default:
-                                        fields = [{ name: `   Субъект   `, value: `<@${interaction.user.id}>`, inline: true }, { name: `   Объект   `, value: `<@${getUser.user.id}>`, inline: true }]
-                                        badDescription = `\`\`\`Недостаточно прав!\`\`\``;
+                                        fields = field.Bad
+                                        badDescription = text.badTwo;
                                         color = Utility.colorDiscord;
                                         break;
                                 }
@@ -212,22 +254,29 @@ module.exports = {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}  | ${HistoryEmojis.Ban} ]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexOne
                                             color = Utility.colorDiscord
-                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }, { name: `      Бан      `, value: `Причина: 4.3\nВремя: 30 дней`, inline: true }
-                                            getUser.member.roles.add(WorkRoles.Ban && WorkRoles.Mute)
+                                            fields = field.BanWarnMute
+                                            await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
+                                            await getUser.member.roles.cache.forEach(r => {
+                                                if (Object.values(UntilsRoles).includes(r.id)) {
+                                                    return;
+                                                } else {
+                                                    getUser.member.roles.remove(r.id)
+                                                }
+                                            })
                                         } else {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            ComplexDescription = `**[${HistoryEmojis.Mute} | ${HistoryEmojis.Warn}]** **Пользователю <@${getUser.user.id}> был выдан:**`
+                                            ComplexDescription = text.ComplexTwo
                                             color = Utility.colorDiscord
-                                            fields = { name: "```      Мут      ```", value: `Причина: ${getReason}\nВремя: ${time}`, inline: true }, { name: `      Варн      `, value: `Причина: 4.3\nВремя: 14 дней`, inline: true }
-                                            getUser.member.roles.add(WorkRoles.Mute)
+                                            fields = field.MuteWarn
+                                            await getUser.member.roles.add(WorkRoles.Mute)
                                         }
                                         break;
                                     default:
-                                        fields = [{ name: `   Субъект   `, value: `<@${interaction.user.id}>`, inline: true }, { name: `   Объект   `, value: `<@${getUser.user.id}>`, inline: true }]
-                                        badDescription = `\`\`\`Недостаточно прав!\`\`\``;
+                                        fields = field.Bad
+                                        badDescription = text.badTwo;
                                         color = Utility.colorDiscord;
                                         break;
                                 }
@@ -239,21 +288,22 @@ module.exports = {
                             case 0:
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
-                                        description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36${getReason}[0m\`\`\`**`
+                                    case [OwnerId.hoki].includes(interaction.user.id):
+                                        description = text.standart
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        await getUser.member.roles.add(WorkRoles.Mute)
                                         break;
                                     case await fetchStaff(staffSheet, interaction.user.id) === true:
                                         await action(staffSheet, interaction.user.id, 7)
-                                        description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36${getReason}[0m\`\`\`**`
+                                        description = text.standart
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        await getUser.member.roles.add(WorkRoles.Mute)
                                         break;
                                     default:
-                                        fields = [{ name: `   Субъект   `, value: `<@${interaction.user.id}>`, inline: true }, { name: `   Объект   `, value: `<@${getUser.user.id}>`, inline: true }]
-                                        badDescription = `\`\`\`Недостаточно прав!\`\`\``;
+                                        fields = field.Bad
+                                        badDescription = text.badTwo;
                                         color = Utility.colorDiscord;
                                         break;
                                 }
@@ -261,21 +311,22 @@ module.exports = {
                             case 1162940648:
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
-                                        description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36${getReason}[0m\`\`\`**`
+                                    case [OwnerId.hoki].includes(interaction.user.id):
+                                        description = text.standart
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        await getUser.member.roles.add(WorkRoles.Mute)
                                         break;
                                     case await fetchStaff(staffSheet, interaction.user.id) === true:
                                         await action(staffSheet, interaction.user.id, 7)
-                                        description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36${getReason}[0m\`\`\`**`
+                                        description = text.standart
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        await getUser.member.roles.add(WorkRoles.Mute)
                                         break;
                                     default:
-                                        fields = [{ name: `   Субъект   `, value: `<@${interaction.user.id}>`, inline: true }, { name: `   Объект   `, value: `<@${getUser.user.id}>`, inline: true }]
-                                        badDescription = `\`\`\`Недостаточно прав!\`\`\``;
+                                        fields = field.Bad
+                                        badDescription = text.badTwo;
                                         color = Utility.colorDiscord;
                                         break;
                                 }
@@ -283,14 +334,15 @@ module.exports = {
                             case null:
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
-                                        description = `**[${HistoryEmojis.Mute}] Пользователю <@${getUser.user.id}> был выдан <@&${WorkRoles.Mute}> на ${getTime.name}\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36${getReason}[0m\`\`\`**`
+                                    case [OwnerId.hoki].includes(interaction.user.id):
+                                        description = text.standart
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                        getUser.member.roles.add(WorkRoles.Mute)
+                                        await getUser.member.roles.add(WorkRoles.Mute)
                                         break;
                                     default:
-                                        badDescription = `\`\`\`Недостаточно прав!\`\`\``;
-                                        fields = [{ name: `   Субъект   `, value: `<@${interaction.user.id}>`, inline: true }, { name: `   Объект   `, value: `<@${getUser.user.id}>`, inline: true }]
+                                        badDescription = text.badTwo;
+                                        fields = field.Bad
                                         color = Utility.colorDiscord;
                                         break;
                                 }
@@ -300,22 +352,18 @@ module.exports = {
                 }
                 break;
         }
-        console.log(color);
-        console.log(description);
-        console.log(badDescription);
-        console.log(ComplexDescription);
-        const embedAppel = new EmbedBuilder().setDescription(`\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+        const embedAppel = new EmbedBuilder().setDescription(text.Appel).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
         const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
         const embed = new EmbedBuilder().setColor(color).setDescription(description || ComplexDescription || badDescription)
-        console.log(embed);
+
         if (badDescription) {
             await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Mute}**`).setFields(fields)] })
         }
         if (description) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`[${HistoryEmojis.Mute}] Вы получили мут на ${time} минут`)], components: [new ActionRowBuilder().addComponents(AppelButton)] });
+            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`[${HistoryEmojis.Mute}] Вы получили мут на ${getTime.value} минут`)], components: [new ActionRowBuilder().addComponents(AppelButton)] });
         }
         if (ComplexDescription) {
-            await interaction.editReply({ embeds: [embed.setFields(fields)] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`Вы получили комплексное наказание`)], components: [new ActionRowBuilder().addComponents(AppelButton)] }) && await getUser.user.send({ embeds: [embed.setFields(fields)] });
+            await interaction.editReply({ embeds: [embed.setFields(fields)] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`Вы получили комплексное наказание`)], components: [new ActionRowBuilder().addComponents(AppelButton)] }) && await getUser.user.send({ embeds: [embed.setFields(fields)] });
         }
     }
 }

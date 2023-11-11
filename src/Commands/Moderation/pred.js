@@ -1,10 +1,12 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 //==========< OTHERS >==========\\
-const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis } = require('../../../config.js');
-const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
-const { Op } = require('sequelize');
+const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
+const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js');
+const { action } = require('../../Structures/Untils/Functions/action.js');
+const { createDB } = require('../../Structures/Untils/Functions/actionDB.js');
+const { Op } = require('sequelize');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -20,118 +22,151 @@ module.exports = {
      */
 
     async execute(client, interaction) {
-        if (![StaffChats.Assistant, StaffChats.Control].includes(interaction.channel.id)) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'Используйте чат, соответствующий вашей стафф роли!'
-            })
-            return
-        }
-        const isAssistant = interaction.channel.id === StaffChats.Assistant
-        const isControl = interaction.channel.id === StaffChats.Control
-
         const getUser = interaction.options.get('пользователь');
         const getReason = interaction.options.getString('причина');
-        const hasRoleExecutor = (id) => interaction.member.roles.cache.has(id);
-        const hasRole = (id) => getUser.member.roles.cache.has(id);
+
+        const isAssistant = interaction.channel.id === StaffChats.Assistant
+        const isControl = interaction.channel.id === StaffChats.Control
 
         const memberPosition = interaction.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 1;
         const targetPosition = getUser.member.roles.cache.filter(r => Object.values(StaffRoles).includes(r.id))?.sort((a, b) => b.position - a.position)?.first()?.position || 0;
 
-        let description;
-        let badDescription;
+        const hasRoleExecutor = (id) => interaction.member.roles.cache.has(id);
+        const hasRole = (id) => getUser.member.roles.cache.has(id);
+
         let color;
+        let fields;
         let staffSheet;
         let customId;
 
-        await interaction.deferReply()
+        let description;
+        let badDescription;
 
+        const text = {
+            standart: `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`,
+            badOne: `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> не было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется предупреждение[0m\`\`\`**`,
+            badTwo: `\`\`\`Недостаточно прав!\`\`\``,
+            badThree: `**[${HistoryEmojis.Pred}] Активные записи отсутствуют! Предупреждение будет снято.**`,
+            Appel: `\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`
+        }
+        const field = {
+            Bad: [{ name: "```   Субъект   ```", value: `<@${interaction.user.id}>`, inline: true }, { name: "```   Объект   ```", value: `<@${getUser.user.id}>`, inline: true }],
+        }
+
+        await interaction.deferReply()
         switch (true) {
             case isControl:
-                await doc.loadInfo()
-                staffSheet = doc.sheetsById[1162940648]
+                staffSheet = 1162940648
                 customId = 'ControlAppelButton'
                 break;
             case isAssistant:
-                await docAssist.loadInfo()
-                staffSheet = docAssist.sheetsById[0]
+                staffSheet = 0
                 customId = 'AssistAppelButton'
                 break;
+            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
+                staffSheet = null
+                customId = 'AdminAppelButton'
+                break;
+            default:
+                staffSheet = undefined
+                break;
         }
-
         switch (true) {
+            case staffSheet === undefined:
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
-            case memberPosition <= targetPosition:
-                description = `\`\`\`Недостаточно прав!\`\`\``;
-                color = Utility.colorRed;
+            case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
+                description = text.badTwo;
+                fields = field.Bad
+                color = Utility.colorDiscord;
                 break;
             case hasRole(WorkRoles.Pred):
-                const activePred = await History.findOne({
-                    where: {
-                        target: getUser.user.id,
-                        type: 'Pred',
-                        expiresAt: { [Op.gt]: new Date() },
-                    }
-                })
+                const activePred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() }, } })
                 if (activePred) {
-                    description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> не было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется предупреждение[0m\`\`\`**`
-                    color = Utility.colorRed
+                    badDescription = text.badOne
+                    fields = field.Bad
+                    color = Utility.colorDiscord;
                 } else {
-                    description = `**[${HistoryEmojis.Pred}] Активные записи отсутствуют! Предупреждение будет снято.**`
+                    description = text.badThree
                     color = Utility.colorRed
-                    getUser.member.roles.remove(WorkRoles.Pred)
+                    await getUser.member.roles.remove(WorkRoles.Pred)
                 }
                 break;
             default:
-                async function fetchStaff(user, staffSheet) {
-                    const sheet = staffSheet;
-                    await sheet.loadCells()
-                    const rows = await sheet.getRows();
-                    const row = rows.find((r) => r._rawData.includes(user))
-                    const day = (new Date().getDay() + 1) % 7
-                    const cell = sheet.getCell(row.rowNumber - 1, 8 + day * 7)
-
-                    cell.value = Number(cell.value || 0) + 1
-                    sheet.saveUpdatedCells();
+                switch (staffSheet) {
+                    case 0:
+                        switch (true) {
+                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case [OwnerId.hoki].includes(interaction.user.id):
+                                description = text.standart
+                                color = Utility.colorDiscord
+                                await createDB(interaction.user.id, getUser.user.id, getReason, 'Pred', new Date(Date.now() + 86400000))
+                                await getUser.member.roles.add(WorkRoles.Pred)
+                                break;
+                            case await fetchStaff(staffSheet, interaction.user.id) === true:
+                                await action(staffSheet, interaction.user.id, 8)
+                                description = text.standart
+                                color = Utility.colorDiscord
+                                await createDB(interaction.user.id, getUser.user.id, getReason, 'Pred', new Date(Date.now() + 86400000))
+                                await getUser.member.roles.add(WorkRoles.Pred)
+                                break;
+                            default:
+                                fields = field.Bad
+                                badDescription = text.badTwo;
+                                color = Utility.colorDiscord;
+                                break;
+                        }
+                        break;
+                    case 1162940648:
+                        switch (true) {
+                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case [OwnerId.hoki].includes(interaction.user.id):
+                                description = text.standart
+                                color = Utility.colorDiscord
+                                await createDB(interaction.user.id, getUser.user.id, getReason, 'Pred', new Date(Date.now() + 86400000))
+                                await getUser.member.roles.add(WorkRoles.Pred)
+                                break;
+                            case await fetchStaff(staffSheet, interaction.user.id) === true:
+                                await action(staffSheet, interaction.user.id, 8)
+                                description = text.standart
+                                color = Utility.colorDiscord
+                                await createDB(interaction.user.id, getUser.user.id, getReason, 'Pred', new Date(Date.now() + 86400000))
+                                await getUser.member.roles.add(WorkRoles.Pred)
+                                break;
+                            default:
+                                fields = field.Bad
+                                badDescription = text.badTwo;
+                                color = Utility.colorDiscord;
+                                break;
+                        }
+                        break;
+                    case null:
+                        switch (true) {
+                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case [OwnerId.hoki].includes(interaction.user.id):
+                                description = text.standart
+                                color = Utility.colorDiscord
+                                await createDB(interaction.user.id, getUser.user.id, getReason, 'Pred', new Date(Date.now() + 86400000))
+                                await getUser.member.roles.add(WorkRoles.Pred)
+                                break;
+                            default:
+                                fields = field.Bad
+                                badDescription = text.badTwo;
+                                color = Utility.colorDiscord;
+                                break;
+                        }
+                        break;
                 }
-
-                try {
-                    if (hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || ['295493530548174848', '297372127768870913'].includes(interaction.user.id)) {
-                        description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
-                        color = Utility.colorYellow
-                    } else {
-                        await fetchStaff(interaction.user.id, staffSheet)
-                        description = `**[${HistoryEmojis.Pred}] Пользователю <@${getUser.user.id}> было выдано <@&${WorkRoles.Pred}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\`**`
-                        color = Utility.colorYellow
-                    }
-                } catch (error) {
-                    console.log(error);
-                    badDescription = `**Вы не являетесь** \`Контролом / Ассистентом\``
-                    color = Utility.colorDiscord
-                    break;
-                }
-                const embedAppel = new EmbedBuilder().setTitle(`[${HistoryEmojis.Pred}] Вы получили предупреждение на 24 часа`).setDescription(`\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-                const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
-
-                await History.create({
-                    executor: interaction.user.id,
-                    target: getUser.user.id,
-                    reason: getReason,
-                    type: 'Pred',
-                    expiresAt: new Date(Date.now() + 86400000), // 24 часа
-                })
-                await getUser.member.roles.add(WorkRoles.Pred)
-                await getUser.user.send({ embeds: [embedAppel], components: [new ActionRowBuilder().addComponents(AppelButton)] });
                 break;
         }
-        console.log(description);
-        console.log(badDescription);
+        const embedAppel = new EmbedBuilder().setDescription(text.Appel).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+        const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
         const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription)
         if (badDescription) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: </pred:1159075761681092658>**`).setFields({ name: "`Пользователь`", value: `<@${interaction.user.id}>`, inline: true }, { name: "`Использовал на`", value: `<@${getUser.user.id}>`, inline: true })] })
-        } else {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })]})
+            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Pred}**`).setFields(fields)] })
+        }
+        if (description) {
+            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`[${HistoryEmojis.Pred}] Вы получили предупреждение на 24 часа`)], components: [new ActionRowBuilder().addComponents(AppelButton)] });
         }
     }
 }
