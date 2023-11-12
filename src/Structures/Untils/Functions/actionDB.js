@@ -11,6 +11,16 @@ async function createDB(executor, target, reason, type, expiresAt) {
     })
 }
 
+async function findOneDB(target, type, expiresAt) {
+    return await History.findOne({
+        where: {
+            target: target,
+            type: type,
+            expiresAt: expiresAt,
+        }
+    })
+}
+
 
 async function countDB(target, type, createdAt, expiresAt) {
     if (createdAt != undefined) {
@@ -32,4 +42,4 @@ async function countDB(target, type, createdAt, expiresAt) {
     }
 }
 
-module.exports = { createDB, countDB }
+module.exports = { createDB, findOneDB, countDB }

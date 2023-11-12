@@ -1,9 +1,7 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-
 //==========< OTHERS >==========\\
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID, UntilsRoles } = require('../../../config.js');
-const History = require('../../Structures/Models/History.js');
 const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js');
 const { action, MuteWarnBan } = require('../../Structures/Untils/Functions/action.js');
 const { createDB, countDB } = require('../../Structures/Untils/Functions/actionDB.js');

@@ -1,6 +1,5 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-
 //==========< OTHERS >==========\\
 const { Utility } = require('../../../config.js');
 const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');

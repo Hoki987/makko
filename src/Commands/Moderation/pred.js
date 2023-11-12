@@ -76,7 +76,8 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
-                description = text.badTwo;
+            case hasRole(WorkRoles.Pred) && await fetchStaff(staffSheet, interaction.user.id) === false:
+                badDescription = text.badTwo;
                 fields = field.Bad
                 color = Utility.colorDiscord;
                 break;
@@ -87,36 +88,15 @@ module.exports = {
                     fields = field.Bad
                     color = Utility.colorDiscord;
                 } else {
-                    description = text.badThree
+                    badDescription = text.badThree
                     color = Utility.colorRed
+                    fields = field.Bad
                     await getUser.member.roles.remove(WorkRoles.Pred)
                 }
                 break;
             default:
                 switch (staffSheet) {
                     case 0:
-                        switch (true) {
-                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
-                            case [OwnerId.hoki].includes(interaction.user.id):
-                                description = text.standart
-                                color = Utility.colorDiscord
-                                await createDB(interaction.user.id, getUser.user.id, getReason, 'Pred', new Date(Date.now() + 86400000))
-                                await getUser.member.roles.add(WorkRoles.Pred)
-                                break;
-                            case await fetchStaff(staffSheet, interaction.user.id) === true:
-                                await action(staffSheet, interaction.user.id, 8)
-                                description = text.standart
-                                color = Utility.colorDiscord
-                                await createDB(interaction.user.id, getUser.user.id, getReason, 'Pred', new Date(Date.now() + 86400000))
-                                await getUser.member.roles.add(WorkRoles.Pred)
-                                break;
-                            default:
-                                fields = field.Bad
-                                badDescription = text.badTwo;
-                                color = Utility.colorDiscord;
-                                break;
-                        }
-                        break;
                     case 1162940648:
                         switch (true) {
                             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
