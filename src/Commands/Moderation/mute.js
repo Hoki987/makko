@@ -121,75 +121,14 @@ module.exports = {
                     case await countDB(getUser.user.id, 'Mute', { [Op.gt]: new Date(new Date().getTime() - 864000000), }) >= 2:
                         switch (staffSheet) {
                             case 0:
-                                switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
-                                    case [OwnerId.hoki].includes(interaction.user.id):
-                                        if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
-                                            ComplexDescription = text.ComplexOne
-                                            color = Utility.colorDiscord
-                                            fields = field.BanWarnMute
-                                            await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
-                                            await getUser.member.roles.cache.forEach(r => {
-                                                if (Object.values(UntilsRoles).includes(r.id)) {
-                                                    return;
-                                                } else {
-                                                    getUser.member.roles.remove(r.id)
-                                                }
-                                            })
-                                        } else {
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            ComplexDescription = text.ComplexTwo
-                                            color = Utility.colorDiscord
-                                            fields = field.MuteWarn
-                                            await getUser.member.roles.add(WorkRoles.Mute)
-                                        }
-                                        break;
-                                    case await fetchStaff(staffSheet, interaction.user.id) === true:
-                                        if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
-                                            await MuteWarnBan(staffSheet, interaction.user.id, true)
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
-                                            ComplexDescription = text.ComplexOne
-                                            color = Utility.colorDiscord
-                                            fields = field.BanWarnMute
-                                            await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
-                                            await getUser.member.roles.cache.forEach(r => {
-                                                if (Object.values(UntilsRoles).includes(r.id)) {
-                                                    return;
-                                                } else {
-                                                    getUser.member.roles.remove(r.id)
-                                                }
-                                            })
-                                        } else {
-                                            await MuteWarnBan(staffSheet, interaction.user.id, false)
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            ComplexDescription = text.ComplexTwo
-                                            color = Utility.colorDiscord
-                                            fields = field.MuteWarn
-                                            await getUser.member.roles.add(WorkRoles.Mute)
-                                        }
-                                        break;
-                                    default:
-                                        fields = field.Bad
-                                        badDescription = text.badTwo;
-                                        color = Utility.colorDiscord;
-                                        break;
-                                }
-                                break;
                             case 1162940648:
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
                                             ComplexDescription = text.ComplexOne
                                             color = Utility.colorDiscord
                                             fields = field.BanWarnMute
@@ -203,7 +142,7 @@ module.exports = {
                                             })
                                         } else {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
                                             ComplexDescription = text.ComplexTwo
                                             color = Utility.colorDiscord
                                             fields = field.MuteWarn
@@ -214,8 +153,8 @@ module.exports = {
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
                                             await MuteWarnBan(staffSheet, interaction.user.id, true)
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
                                             ComplexDescription = text.ComplexOne
                                             color = Utility.colorDiscord
                                             fields = field.BanWarnMute
@@ -230,7 +169,7 @@ module.exports = {
                                         } else {
                                             await MuteWarnBan(staffSheet, interaction.user.id, false)
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
                                             ComplexDescription = text.ComplexTwo
                                             color = Utility.colorDiscord
                                             fields = field.MuteWarn
@@ -250,8 +189,8 @@ module.exports = {
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
                                             ComplexDescription = text.ComplexOne
                                             color = Utility.colorDiscord
                                             fields = field.BanWarnMute
@@ -265,7 +204,7 @@ module.exports = {
                                             })
                                         } else {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                            await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
+                                            await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
                                             ComplexDescription = text.ComplexTwo
                                             color = Utility.colorDiscord
                                             fields = field.MuteWarn
@@ -284,28 +223,6 @@ module.exports = {
                     default:
                         switch (staffSheet) {
                             case 0:
-                                switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
-                                    case [OwnerId.hoki].includes(interaction.user.id):
-                                        description = text.standart
-                                        color = Utility.colorDiscord
-                                        await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                        await getUser.member.roles.add(WorkRoles.Mute)
-                                        break;
-                                    case await fetchStaff(staffSheet, interaction.user.id) === true:
-                                        await action(staffSheet, interaction.user.id, 7)
-                                        description = text.standart
-                                        color = Utility.colorDiscord
-                                        await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
-                                        await getUser.member.roles.add(WorkRoles.Mute)
-                                        break;
-                                    default:
-                                        fields = field.Bad
-                                        badDescription = text.badTwo;
-                                        color = Utility.colorDiscord;
-                                        break;
-                                }
-                                break;
                             case 1162940648:
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):

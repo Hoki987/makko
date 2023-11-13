@@ -67,7 +67,8 @@ const HistoryEmojis = {
 
 const CommandsLogsID = {
     Mute: '</mute:1170111146863370383>',
-    Pred: '</pred:1170111146863370384>'
+    Pred: '</pred:1170111146863370384>',
+    Warn: '</warn:1170111146863370387>'
 }
 
 module.exports = { OwnerId, WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID };

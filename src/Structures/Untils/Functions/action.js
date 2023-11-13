@@ -49,8 +49,13 @@ async function MuteWarnBan(staffSheet, user, muteWarn) {
     if (muteWarn === true) {
         cellMute.value = Number(cellMute.value || 0) + 1
         cellWarn.value = Number(cellWarn.value || 0) + 1
-    } else {
+    } 
+    if (muteWarn === false) {
         cellMute.value = Number(cellMute.value || 0) + 1
+        cellWarn.value = Number(cellWarn.value || 0) + 1
+        cellBan.value = Number(cellBan.value || 0) + 1
+    }
+    if (muteWarn === undefined) {
         cellWarn.value = Number(cellWarn.value || 0) + 1
         cellBan.value = Number(cellBan.value || 0) + 1
     }
