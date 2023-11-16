@@ -2,9 +2,8 @@
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 //==========< OTHERS >==========\\
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID, UntilsRoles } = require('../../../config.js');
-const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js');
 const { action, MuteWarnBan } = require('../../Structures/Untils/Functions/action.js');
-const { createDB, countDB } = require('../../Structures/Untils/Functions/actionDB.js');
+const { createDB, countDB, countStaff } = require('../../Structures/Untils/Functions/actionDB.js');
 const { Op } = require('sequelize');
 //===========================================< Code >===========================================\\
 module.exports = {
@@ -106,7 +105,7 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
-            case hasRole(WorkRoles.Mute) && await fetchStaff(staffSheet, interaction.user.id) === false:
+            case hasRole(WorkRoles.Mute) && await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) && ![OwnerId.hoki].includes(interaction.user.id):
                 badDescription = text.badTwo;
                 fields = field.Bad
                 color = Utility.colorDiscord;
@@ -149,9 +148,9 @@ module.exports = {
                                             await getUser.member.roles.add(WorkRoles.Mute)
                                         }
                                         break;
-                                    case await fetchStaff(staffSheet, interaction.user.id) === true:
+                                    case await countStaff(interaction.user.id) != 0:
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
-                                            await MuteWarnBan(staffSheet, interaction.user.id, true)
+                                            MuteWarnBan(staffSheet, interaction.user.id, true)
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
                                             await createDB(interaction.user.id, getUser.user.id, '4.3', 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
@@ -167,7 +166,7 @@ module.exports = {
                                                 }
                                             })
                                         } else {
-                                            await MuteWarnBan(staffSheet, interaction.user.id, false)
+                                            MuteWarnBan(staffSheet, interaction.user.id, false)
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
                                             ComplexDescription = text.ComplexTwo
@@ -232,8 +231,8 @@ module.exports = {
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                         await getUser.member.roles.add(WorkRoles.Mute)
                                         break;
-                                    case await fetchStaff(staffSheet, interaction.user.id) === true:
-                                        await action(staffSheet, interaction.user.id, 7)
+                                    case await countStaff(interaction.user.id) != 0:
+                                        action(staffSheet, interaction.user.id, 7)
                                         description = text.standart
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))

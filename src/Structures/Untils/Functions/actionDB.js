@@ -1,5 +1,30 @@
 const { Op } = require('sequelize');
 const History = require('../../Models/History');
+const Staff = require('../../Models/Staff');
+
+
+async function addStaff(Tag, PersonalId) {
+    await Staff.create({
+        Tag: Tag,
+        PersonalId: PersonalId,
+    })
+}
+
+async function delStaff(PersonalId) {
+    await Staff.destroy({
+        where: {
+            PersonalId: PersonalId
+        }
+    })
+}
+
+async function countStaff(PersonalId) {
+   return await Staff.count({
+        where: {
+            PersonalId: PersonalId
+        }
+    })
+}
 
 async function createDB(executor, target, reason, type, expiresAt) {
     await History.create({
@@ -42,4 +67,4 @@ async function countDB(target, type, createdAt, expiresAt) {
     }
 }
 
-module.exports = { createDB, findOneDB, countDB }
+module.exports = { addStaff, delStaff, countStaff, createDB, findOneDB, countDB }

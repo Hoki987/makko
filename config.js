@@ -39,8 +39,10 @@ const StaffChats = {
 }
 
 const Reasons = {
-    perm: ['<13', 'переход', '3.9'],
-    temp: ['4.4', '3.1', '3.3', '3.6', '3.7', '3.8', '3.10', '3.11', '3.13', '4.3']
+    PERM: ['<13', 'переход', '3.9', '3.11'],
+    HARD: ['3.1', '3.3', '3.6', '3.7', '3.10', '3.13'],
+    SOFT: ['4.3'],
+    ADMIN: ['4.4']
 }
 
 const Utility = {
@@ -68,7 +70,10 @@ const HistoryEmojis = {
 const CommandsLogsID = {
     Mute: '</mute:1170111146863370383>',
     Pred: '</pred:1170111146863370384>',
-    Warn: '</warn:1170111146863370387>'
+    Warn: '</warn:1170111146863370387>',
+    BanJPG: '</banjpg:1170111146863370381>',
+    BanCam: '</bancam:1170111146422964239>',
+    Ban: '</ban:1170111146422964238>',
 }
 
 module.exports = { OwnerId, WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID };

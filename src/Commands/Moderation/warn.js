@@ -3,9 +3,8 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, 
 //==========< OTHERS >==========\\
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID, UntilsRoles } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
-const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js');
 const { action, MuteWarnBan } = require('../../Structures/Untils/Functions/action.js');
-const { createDB, findOneDB, countDB } = require('../../Structures/Untils/Functions/actionDB.js');
+const { countStaff, createDB, findOneDB, countDB } = require('../../Structures/Untils/Functions/actionDB.js');
 const { Op } = require('sequelize');
 //===========================================< Code >===========================================\\
 module.exports = {
@@ -80,7 +79,7 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
-            case hasRole(WorkRoles.Ban) && await fetchStaff(staffSheet, interaction.user.id) === false:
+            case hasRole(WorkRoles.Ban) && await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) && ![OwnerId.hoki].includes(interaction.user.id):
                 badDescription = text.badTwo;
                 fields = field.Bad
                 color = Utility.colorDiscord;
@@ -113,7 +112,7 @@ module.exports = {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now())) // 1209600000 либо
                                             await History.update({ expiresAt: new Date(activeBan.expiresAt.getTime() + 1000 * 60 * 60 * 24 * 7) }, { where: { id: activeBan.id } })
                                             break;
-                                        case await fetchStaff(staffSheet, interaction.user.id) === true:
+                                        case await countStaff(interaction.user.id) != 0:
                                             action(staffSheet, interaction.user.id, 9)
                                             description = text.standart
                                             color = Utility.colorDiscord
@@ -169,7 +168,7 @@ module.exports = {
                                     }
                                 })
                                 break;
-                            case await fetchStaff(staffSheet, interaction.user.id) === true:
+                            case await countStaff(interaction.user.id) != 0:
                                 ComplexDescription = text.ComplexOne
                                 color = Utility.colorDiscord
                                 fields = field.MuteWarn
@@ -230,7 +229,7 @@ module.exports = {
                                 color = Utility.colorDiscord
                                 await createDB(interaction.user.id, getUser.user.id, getReason, 'Warn', new Date(Date.now() + 1209600000))
                                 break;
-                            case await fetchStaff(staffSheet, interaction.user.id) === true:
+                            case await countStaff(interaction.user.id) != 0:
                                 description = text.standart
                                 color = Utility.colorDiscord
                                 action(staffSheet, interaction.user.id, 9)

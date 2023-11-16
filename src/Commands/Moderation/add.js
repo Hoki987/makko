@@ -4,7 +4,8 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder }
 //==========< OTHERS >==========\\
 const { Utility } = require('../../../config.js');
 const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
-const { StaffChats } = require('../../../config.js')
+const { StaffChats } = require('../../../config.js');
+const { addStaff } = require('../../Structures/Untils/Functions/actionDB.js');
 //===========================================< Code >===========================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -55,6 +56,7 @@ module.exports = {
         const dmembed = new EmbedBuilder().setDescription('**Стафф сервер** - https://discord.gg/W96xcfDUfU').setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() })
 
         await sheet.addRow({ Tag: getUser.user.tag, ID: getUser.user.id, Position: Position, Date: new Date().toLocaleDateString('en-US') })
+        await addStaff(getUser.user.tag, getUser.user.id)
         await interaction.reply({ embeds: [embed] })
         await getUser.user.send({ embeds: [dmembed] })
     }
