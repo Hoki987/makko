@@ -36,7 +36,7 @@ module.exports = {
             const mute = history.find(m => m.type === 'Mute' && m.expiresAt.getTime() > Date.now())
             const banCam = history.find(bc => bc.type === 'BanCam' && bc.expiresAt.getTime() > Date.now())
             const banJPG = history.find(bj => bj.type === 'BanJPG' && bj.expiresAt.getTime() > Date.now())
-            const ban = history.find(b => b.type === 'Ban' && b.expiresAt.getTime() > Date.now())
+            const ban = history.find(b => b.type === 'Ban' && b.expiresAt || b.expiresAt?.getTime() > Date.now())
             const pred = history.find(p => p.type === 'Pred' && p.expiresAt.getTime() > Date.now())
 
             if (warns.length) {
@@ -52,7 +52,7 @@ module.exports = {
                 description += `Запрет картинок истекает <t:${Math.floor(banJPG.expiresAt.getTime() / 1000)}:R>\n`
             }
             if (ban) {
-                description += `Бан истекает <t:${Math.floor(ban.expiresAt.getTime() / 1000)}:R>\n`
+                description += `Бан истекает **никогда**\n` || `Бан истекает <t:${Math.floor(ban.expiresAt.getTime() / 1000)}:R>\n`
             }
             if (pred) {
                 description += `Предупреждение истекает <t:${Math.floor(pred.expiresAt.getTime() / 1000)}:R>\n`

@@ -44,7 +44,7 @@ module.exports = {
 
         const hasRoleExecutor = (id) => interaction.member.roles.cache.has(id);
         const hasRole = (id) => getUser.member.roles.cache.has(id);
-        const banReson = (banType) => Object.values(banType).includes(getReason);
+        const banReason = (banType) => Object.values(banType).includes(getReason);
 
         let color;
         let fields;
@@ -115,9 +115,8 @@ module.exports = {
                 switch (staffSheet) {
                     case 0:
                     case 1162940648:
-                        console.log('1');
                         switch (true) {
-                            case banReson(Reasons.PERM):
+                            case banReason(Reasons.PERM):
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
@@ -156,7 +155,7 @@ module.exports = {
                                         break;
                                 }
                                 break;
-                            case banReson(Reasons.HARD):
+                            case banReason(Reasons.HARD):
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
@@ -200,7 +199,7 @@ module.exports = {
                                         break;
                                 }
                                 break;
-                            case banReson(Reasons.SOFT):
+                            case banReason(Reasons.SOFT):
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
@@ -239,8 +238,7 @@ module.exports = {
                                         break;
                                 }
                                 break;
-                            case banReson(Reasons.ADMIN):
-                                console.log('2');
+                            case banReason(Reasons.ADMIN):
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
@@ -272,7 +270,7 @@ module.exports = {
                         break;
                     case null:
                         switch (true) {
-                            case banReson(Reasons.PERM):
+                            case banReason(Reasons.PERM):
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
@@ -296,7 +294,7 @@ module.exports = {
                                         break;
                                 }
                                 break;
-                            case banReson(Reasons.HARD):
+                            case banReason(Reasons.HARD):
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
@@ -324,7 +322,7 @@ module.exports = {
                                         break;
                                 }
                                 break;
-                            case banReson(Reasons.SOFT):
+                            case banReason(Reasons.SOFT):
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
@@ -348,7 +346,7 @@ module.exports = {
                                         break;
                                 }
                                 break;
-                            case banReson(Reasons.ADMIN):
+                            case banReason(Reasons.ADMIN):
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
