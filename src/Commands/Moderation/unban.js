@@ -80,6 +80,8 @@ module.exports = {
             default:
                 const lastNullBan = await findOneDB(getUser.user.id, 'Ban', null)
                 const lastBan = await findOneDB(getUser.user.id, 'Ban', { [Op.gt]: new Date() })
+                console.log(lastNullBan);
+                console.log(lastBan);
                 switch (staffSheet) {
                     case 0:
                     case 1162940648:
@@ -87,16 +89,19 @@ module.exports = {
                             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                             case [OwnerId.hoki].includes(interaction.user.id):
                             case await countStaff(interaction.user.id) != 0:
-                                description = text.standart
-                                color = Utility.colorGreen
                                 switch (true) {
-                                    case lastBan:
+                                    case lastBan != null:
+                                        description = text.standart
+                                        color = Utility.colorGreen
                                         await History.update({ expiresAt: lastBan.createdAt.getTime() }, { where: { id: lastBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
                                         break;
-                                    case lastNullBan:
+                                    case lastNullBan === null:
+                                        description = text.standart
+                                        color = Utility.colorGreen
                                         await History.update({ expiresAt: lastNullBan.createdAt }, { where: { id: lastNullBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
+                                        break;
                                     default:
                                         badDescription = text.badThree
                                         color = Utility.colorRed
@@ -115,16 +120,19 @@ module.exports = {
                         switch (true) {
                             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                             case [OwnerId.hoki].includes(interaction.user.id):
-                                description = text.standart
-                                color = Utility.colorGreen
                                 switch (true) {
-                                    case lastBan:
+                                    case lastBan != null:
+                                        description = text.standart
+                                        color = Utility.colorGreen
                                         await History.update({ expiresAt: lastBan.createdAt.getTime() }, { where: { id: lastBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
                                         break;
-                                    case lastNullBan:
+                                    case lastNullBan === null:
+                                        description = text.standart
+                                        color = Utility.colorGreen
                                         await History.update({ expiresAt: lastNullBan.createdAt }, { where: { id: lastNullBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
+                                        break;
                                     default:
                                         badDescription = text.badThree
                                         color = Utility.colorRed

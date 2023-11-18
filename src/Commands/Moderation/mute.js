@@ -73,7 +73,7 @@ module.exports = {
                 break;
             case isAssistant:
                 staffSheet = 0
-                customId = 'AssistAppelButton'
+                customId = 'mute_AssistButton'
                 break;
             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null

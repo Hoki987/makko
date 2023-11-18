@@ -35,7 +35,10 @@ const StaffRoles = {
 const StaffChats = {
     Control: '1154731363132514324',
     Assistant: '1000307646588534786',
-    Logs: '1163407565225476127'
+    Logs: '1163407565225476127',
+    AppelAssist: '1175306269175844914',
+    AppelControl: '1175337917112143902',
+    AppelAdmin: '1175337943439769630'
 }
 
 const Reasons = {
