@@ -5,7 +5,7 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, 
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID, Reasons, UntilsRoles } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 const { action } = require('../../Structures/Untils/Functions/action.js');
-const { createDB, countStaff } = require('../../Structures/Untils/Functions/actionDB.js');
+const { createDB, countStaff, findOneDB } = require('../../Structures/Untils/Functions/actionDB.js');
 const { Op } = require('sequelize');
 //===========================================< Code >===========================================\\
 module.exports = {
@@ -74,15 +74,15 @@ module.exports = {
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
-                customId = 'ban_ControlAppelButton'
+                customId = `appeal_ban_ControlButton`
                 break;
             case isAssistant:
                 staffSheet = 0
-                customId = 'ban_AssistButton'
+                customId = 'appeal_ban_AssistButton'
                 break;
             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null
-                customId = 'ban_AdminButton'
+                customId = 'appeal_ban_AdminButton'
                 break;
             default:
                 staffSheet = undefined
@@ -378,6 +378,37 @@ module.exports = {
                         break;
                 }
         }
+        if (!badDescription) {
+        switch (customId) {
+            case `appeal_ban_ControlButton`:
+            case `appeal_ban_AssistButton`:
+            case `appeal_ban_AdminButton`:
+                const findSoft = await History.findOne({
+                    where: {
+                        target: getUser.user.id,
+                        type: 'Ban',
+                        expiresAt: {[Op.gt]: new Date(Date.now())},
+                        reason: getReason
+                    }
+                })
+                console.log(findSoft);
+                if (findSoft === null) {
+                    const findPerm = await History.findOne({
+                        where: {
+                            target: getUser.user.id,
+                            type: 'Ban',
+                            expiresAt: null,
+                            reason: getReason
+                        }
+                    })
+                    console.log(findPerm);
+                    customId = customId + `_${findPerm.id}`
+                } else{ 
+                    customId = customId + `_${findSoft.id}`
+                }
+                break;
+        }
+    }
         const embedAppel = new EmbedBuilder().setDescription(text.Appel).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
         const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
         const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription)

@@ -59,15 +59,15 @@ module.exports = {
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
-                customId = 'ControlAppelButton'
+                customId = 'warn_ControlButton'
                 break;
             case isAssistant:
                 staffSheet = 0
-                customId = 'AssistAppelButton'
+                customId = 'warn_AssistButton'
                 break;
             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null
-                customId = 'AdminAppelButton'
+                customId = 'warn_AdminButton'
                 break;
             default:
                 staffSheet = undefined

@@ -46,6 +46,7 @@ module.exports = {
             }
         };
         if (interaction.isButton()) {
+            console.log(interaction.customId);
             const command = client.buttons.get(interaction.customId.split('_')[0]);
             console.log(command);
             if (!command) {
@@ -57,7 +58,23 @@ module.exports = {
             try {
                 command.execute(client, interaction);
             } catch (error) {
-                console.log(`${color.bold.red(`[INTERACTION > CREATE SLASH : ERROR]`)}` + `${error}.`.bgRed);
+                console.log(`${color.bold.red(`[INTERACTION > BUTTON : ERROR]`)}` + `${error}.`.bgRed);
+            }
+        };
+        if (interaction.isModalSubmit()) {
+            console.log(interaction.customId);
+            const command = client.buttons.get(interaction.customId.split('_')[0]);
+            console.log(command);
+            if (!command) {
+                interaction.reply({
+                    ephemeral: true,
+                    content: "This Command is outdated!"
+                });
+            };
+            try {
+                command.execute(client, interaction);
+            } catch (error) {
+                console.log(`${color.bold.red(`[INTERACTION > MODAL SUBMIT : ERROR]`)}` + `${error}.`.bgRed);
             }
         };
     },
