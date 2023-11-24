@@ -23,6 +23,29 @@ async function action(staffSheet, user, column) {
     cell.value = Number(cell.value || 0) + 1
     sheet.saveUpdatedCells();
 }
+async function timeAction(staffSheet, user, column, time) {
+    let sheet;
+    switch (true) {
+        case staffSheet === 0:
+            await docAssist.loadInfo()
+            sheet = docAssist.sheetsById[staffSheet]
+            break;
+        case staffSheet === 1162940648:
+            await doc.loadInfo()
+            sheet = doc.sheetsById[staffSheet]
+            break;
+        default:
+            return true;
+    }
+    await sheet.loadCells()
+    const rows = await sheet.getRows();
+    const row = rows.find((r) => r._rawData.includes(user))
+    const day = (new Date().getDay() + 1) % 7
+    const cell = sheet.getCell(row.rowNumber - 1, column + day * 7)
+
+    cell.value = Number(cell.value || 0) + time
+    sheet.saveUpdatedCells();
+}
 
 async function MuteWarnBan(staffSheet, user, muteWarn) {
     let sheet;
@@ -62,4 +85,4 @@ async function MuteWarnBan(staffSheet, user, muteWarn) {
     sheet.saveUpdatedCells();
 }
 
-module.exports = { action, MuteWarnBan }
+module.exports = { action, MuteWarnBan, timeAction }

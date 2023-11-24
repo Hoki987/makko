@@ -18,6 +18,14 @@ const UntilsRoles = {
     Ban: "1154769569274150955"
 }
 
+const StaffServerRoles = {
+    Admin: '1154731145552986112',
+    Developer: '1163407094691680346',
+    Moderator: '1154731154025488434',
+    Curator: '1163407079168557106',
+    Control: '1177523605073039380',
+}
+
 const StaffRoles = {
     Admin: '1154731145552986112',
     Developer: '1163407094691680346',
@@ -36,9 +44,7 @@ const StaffChats = {
     Control: '1154731363132514324',
     Assistant: '1000307646588534786',
     Logs: '1163407565225476127',
-    AppelAssist: '1175306269175844914',
-    AppelControl: '1175337917112143902',
-    AppelAdmin: '1175337943439769630'
+    Obhod: '1177488648212590632'
 }
 
 const Reasons = {
@@ -81,4 +87,4 @@ const CommandsLogsID = {
     Ban: '</ban:1170111146422964238>',
 }
 
-module.exports = { OwnerId, WorkRoles, StaffRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID };
+module.exports = { OwnerId, WorkRoles, StaffRoles, StaffServerRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID };
