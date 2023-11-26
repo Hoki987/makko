@@ -3,8 +3,9 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, 
 //==========< OTHERS >==========\\
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID, UntilsRoles } = require('../../../config.js');
 const { action, MuteWarnBan } = require('../../Structures/Untils/Functions/action.js');
-const { createDB, countDB, countStaff } = require('../../Structures/Untils/Functions/actionDB.js');
+const { createDB, countDB, countStaff, findOneDB } = require('../../Structures/Untils/Functions/actionDB.js');
 const { Op } = require('sequelize');
+const History = require('../../Structures/Models/History.js');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -105,7 +106,7 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
-            case hasRole(WorkRoles.Mute) && await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) && ![OwnerId.hoki].includes(interaction.user.id):
+            case hasRole(WorkRoles.Mute) && await countStaff(interaction.user.id) === 0 && (!hasRoleExecutor(StaffRoles.Developer) || !hasRoleExecutor(StaffRoles.Moderator) || !hasRoleExecutor(StaffRoles.Admin)) && ![OwnerId.hoki].includes(interaction.user.id):
                 badDescription = text.badTwo;
                 fields = field.Bad
                 color = Utility.colorDiscord;
@@ -122,7 +123,7 @@ module.exports = {
                             case 0:
                             case 1162940648:
                                 switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                    case hasRoleExecutor(StaffRoles.Admin) || hasRoleExecutor(StaffRoles.Developer) || hasRoleExecutor(StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
@@ -132,6 +133,17 @@ module.exports = {
                                             color = Utility.colorDiscord
                                             fields = field.BanWarnMute
                                             await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
+                                            if (hasRole(WorkRoles.Pred)) {
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                if (findPred) {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                    await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                                } else {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                }
+                                            } else {
+                                                break;
+                                            }
                                             await getUser.member.roles.cache.forEach(r => {
                                                 if (Object.values(UntilsRoles).includes(r.id)) {
                                                     return;
@@ -146,6 +158,17 @@ module.exports = {
                                             color = Utility.colorDiscord
                                             fields = field.MuteWarn
                                             await getUser.member.roles.add(WorkRoles.Mute)
+                                            if (hasRole(WorkRoles.Pred)) {
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                if (findPred) {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                    await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                                } else {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                }
+                                            } else {
+                                                break;
+                                            }
                                         }
                                         break;
                                     case await countStaff(interaction.user.id) != 0:
@@ -158,6 +181,17 @@ module.exports = {
                                             color = Utility.colorDiscord
                                             fields = field.BanWarnMute
                                             await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
+                                            if (hasRole(WorkRoles.Pred)) {
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                if (findPred) {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                    await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                                } else {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                }
+                                            } else {
+                                                break;
+                                            }
                                             await getUser.member.roles.cache.forEach(r => {
                                                 if (Object.values(UntilsRoles).includes(r.id)) {
                                                     return;
@@ -173,6 +207,17 @@ module.exports = {
                                             color = Utility.colorDiscord
                                             fields = field.MuteWarn
                                             await getUser.member.roles.add(WorkRoles.Mute)
+                                            if (hasRole(WorkRoles.Pred)) {
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                if (findPred) {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                    await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                                } else {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                }
+                                            } else {
+                                                break;
+                                            }
                                         }
                                         break;
                                     default:
@@ -194,6 +239,17 @@ module.exports = {
                                             color = Utility.colorDiscord
                                             fields = field.BanWarnMute
                                             await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
+                                            if (hasRole(WorkRoles.Pred)) {
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                if (findPred) {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                    await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                                } else {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                }
+                                            } else {
+                                                break;
+                                            }
                                             await getUser.member.roles.cache.forEach(r => {
                                                 if (Object.values(UntilsRoles).includes(r.id)) {
                                                     return;
@@ -208,6 +264,17 @@ module.exports = {
                                             color = Utility.colorDiscord
                                             fields = field.MuteWarn
                                             await getUser.member.roles.add(WorkRoles.Mute)
+                                            if (hasRole(WorkRoles.Pred)) {
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                if (findPred) {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                    await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                                } else {
+                                                    await getUser.member.roles.remove(WorkRoles.Pred)
+                                                }
+                                            } else {
+                                                break;
+                                            }
                                         }
                                         break;
                                     default:
@@ -224,12 +291,23 @@ module.exports = {
                             case 0:
                             case 1162940648:
                                 switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                    case hasRoleExecutor(StaffRoles.Admin) || hasRoleExecutor(StaffRoles.Developer) || hasRoleExecutor(StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         description = text.standart
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                         await getUser.member.roles.add(WorkRoles.Mute)
+                                        if (hasRole(WorkRoles.Pred)) {
+                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                            if (findPred) {
+                                                await getUser.member.roles.remove(WorkRoles.Pred)
+                                                await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                            } else {
+                                                await getUser.member.roles.remove(WorkRoles.Pred)
+                                            }
+                                        } else {
+                                            break;
+                                        }
                                         break;
                                     case await countStaff(interaction.user.id) != 0:
                                         action(staffSheet, interaction.user.id, 7)
@@ -237,6 +315,17 @@ module.exports = {
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                         await getUser.member.roles.add(WorkRoles.Mute)
+                                        if (hasRole(WorkRoles.Pred)) {
+                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                            if (findPred) {
+                                                await getUser.member.roles.remove(WorkRoles.Pred)
+                                                await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                            } else {
+                                                await getUser.member.roles.remove(WorkRoles.Pred)
+                                            }
+                                        } else {
+                                            break;
+                                        }
                                         break;
                                     default:
                                         fields = field.Bad
@@ -247,12 +336,23 @@ module.exports = {
                                 break;
                             case null:
                                 switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                    case hasRoleExecutor(StaffRoles.Admin) || hasRoleExecutor(StaffRoles.Developer) || hasRoleExecutor(StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         description = text.standart
                                         color = Utility.colorDiscord
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                         await getUser.member.roles.add(WorkRoles.Mute)
+                                        if (hasRole(WorkRoles.Pred)) {
+                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                            if (findPred) {
+                                                await getUser.member.roles.remove(WorkRoles.Pred)
+                                                await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
+                                            } else {
+                                                await getUser.member.roles.remove(WorkRoles.Pred)
+                                            }
+                                        } else {
+                                            break;
+                                        }
                                         break;
                                     default:
                                         badDescription = text.badTwo;
@@ -267,7 +367,7 @@ module.exports = {
                 break;
         }
         const embedAppel = new EmbedBuilder().setDescription(text.Appel).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-        const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+        const AppelButton = new ButtonBuilder().setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Link).setURL(`${StaffChats.Appel}`);
         const embed = new EmbedBuilder().setColor(color).setDescription(description || ComplexDescription || badDescription)
 
         if (badDescription) {

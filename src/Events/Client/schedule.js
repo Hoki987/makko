@@ -30,10 +30,9 @@ module.exports = {
             .setStyle(ButtonStyle.Success)
 
         const channel = client.channels.cache.get(StaffChats.Obhod)
-        // cron.schedule('* * 1 * * *', async () => {
+        cron.schedule('* 1 * * *', async () => {
             const messages = await channel.messages.fetch({ limit: 1 })
             const last = messages.last();
-            console.log(last.content);
             if (last === undefined) {
                 channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] })
             } else {
@@ -46,12 +45,12 @@ module.exports = {
                         break;
                 }
             }
-        // }, {
-        //     timezone: 'Europe/Moscow'
-        // })
+        }, {
+            timezone: 'Europe/Moscow'
+        })
 
 
-        cron.schedule('* * 1 * *', async () => {
+        cron.schedule('* * * * *', async () => {
             const histories = await History.findAll({
                 where: {
                     expiresAt: { [Op.lt]: new Date() }

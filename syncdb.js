@@ -5,8 +5,8 @@ const Obhod = require('./src/Structures/Models/Obhod.js');
 History.drop();
 History.sync({ force: true }); //forse, alter
 
-Staff.drop();
-Staff.sync({ force: true }); //forse, alter
+// Staff.drop();
+// Staff.sync({ force: true }); //forse, alter
 
 Obhod.drop();
 Obhod.sync({ force: true }); //forse, alter

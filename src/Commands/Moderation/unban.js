@@ -80,8 +80,6 @@ module.exports = {
             default:
                 const lastNullBan = await findOneDB(getUser.user.id, 'Ban', null)
                 const lastBan = await findOneDB(getUser.user.id, 'Ban', { [Op.gt]: new Date() })
-                console.log(lastNullBan);
-                console.log(lastBan);
                 switch (staffSheet) {
                     case 0:
                     case 1162940648:

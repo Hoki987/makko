@@ -6,7 +6,7 @@ const History = require('../Structures/Models/History.js');
 const { renderHistory } = require('../Structures/Untils/render.js');
 const Obhod = require('../Structures/Models/Obhod.js');
 const { action, timeAction } = require('../Structures/Untils/Functions/action.js');
-const { StaffServerRoles } = require('../../config.js');
+const { StaffServerRoles, Utility } = require('../../config.js');
 const { countStaff } = require('../Structures/Untils/Functions/actionDB.js');
 
 //===========================================< Code >===========================\\
@@ -24,9 +24,10 @@ module.exports = {
         const hasRoleExecutor = (id) => interaction.member.roles.cache.has(id);
 
         const embed = new EmbedBuilder()
-            .setDescription(`**Принял обход: <@${interaction.user.id}> | ${interaction.user.id}**`)
-            .setFooter({ text: 'Время начала', iconURL: interaction.guild.iconURL() })
+            .setAuthor({ name: `${interaction.user.username} | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp()
+            .setFooter({ text: `Сервер | ${interaction.guild.name}`, iconURL: interaction.guild.iconURL() })
+            .setColor(Utility.colorDiscord)
         switch (interaction.customId.split('_')[1]) {
             case 'accept':
                 await Obhod.create({ target: interaction.user.id, status: 'active' })
@@ -34,19 +35,22 @@ module.exports = {
                     await interaction.reply({ content: 'Ты начал обход! Можешь начать модерить войсы.', ephemeral: true })
                 break;
             case 'active':
-                if (!interaction.user.id || !hasRoleExecutor(StaffServerRoles.Admin || StaffServerRoles.Curator || StaffServerRoles.Moderator)) {
+                const findActive = await Obhod.findOne({ where: { status: 'active' } });
+                console.log(findActive);
+                if (findActive.target !== interaction.user.id && !hasRoleExecutor(StaffServerRoles.Curator)) {
                     await interaction.reply({ content: 'Ничего не произошло :с', ephemeral: true })
                 } else {
-                    await Obhod.update({ endAt: new Date(Date.now()), status: 'inactive' }, { where: { target: interaction.user.id, status: 'active' } })
-                    await interaction.message.edit({ content: 'Обход окончен', embeds: [{ ...interaction.message.embeds[0].data, description: `${interaction.message.embeds[0].data.description}\n**Закончил обход: <@${interaction.user.id}> | ${interaction.user.id}**`, timestamp: new Date(Date.now()), footer: { text: 'Время конца обхода:', icon_url: interaction.guild.iconURL() } }], components: [] }) &&
+                    await Obhod.update({ endAt: new Date(), status: 'inactive' }, { where: { target: findActive.target, status: 'active' } })
+                    const findObhod = await Obhod.findOne({ where: { target: findActive.target, status: 'inactive' } });
+                    await interaction.message.edit({ content: 'Обход окончен', embeds: [{ ...interaction.message.embeds[0].data, description: `**Закончил обход: <@${interaction.user.id}> | ${interaction.user.id}**`, fields: [{ name: `\`  Начало  \``, value: `**${new Date(findObhod.createdAt).toTimeString().split(' ')[0]}**`, inline: true }, { name: `\`  Конец  \``, value: `**${new Date(findObhod.endAt).toTimeString().split(' ')[0]}**`, inline: true }], timestamp: [] }], components: [] }) &&
                         await interaction.reply({ content: 'Обход был завершен!', ephemeral: true })
-                    if (await countStaff(interaction.user.id) != 0) {
-                        const findObhod = await Obhod.findOne({ where: { target: interaction.user.id, status: 'inactive' } });
+                    if (await countStaff(findObhod.target) != 0) {
                         const time = findObhod.endAt.getTime() - findObhod.createdAt.getTime()
                         let sheet = 1162940648
                         action(sheet, findObhod.target, 11) && timeAction(sheet, findObhod.target, 12, Math.floor((time / (1000 * 60)) % 60))
                         await Obhod.destroy({ where: { target: findObhod.target, status: 'inactive' } })
                     } else {
+                        await Obhod.destroy({ where: { target: findObhod.target, status: 'inactive' } })
                         break;
                     }
                 }

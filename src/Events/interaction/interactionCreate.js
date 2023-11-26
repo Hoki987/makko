@@ -46,9 +46,7 @@ module.exports = {
             }
         };
         if (interaction.isButton()) {
-            console.log(interaction.customId);
             const command = client.buttons.get(interaction.customId.split('_')[0]);
-            console.log(command);
             if (!command) {
                 interaction.reply({
                     ephemeral: true,

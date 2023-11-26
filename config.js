@@ -22,16 +22,22 @@ const StaffServerRoles = {
     Admin: '1154731145552986112',
     Developer: '1163407094691680346',
     Moderator: '1154731154025488434',
-    Curator: '1163407079168557106',
+    Curator: '1177911423540666389',
     Control: '1177523605073039380',
+}
+
+const OwnerRoles = {
+    Admin: '1154731145552986112',
+    Developer: '1163407094691680346',
+    Moderator: '1154731154025488434',
 }
 
 const StaffRoles = {
     Admin: '1154731145552986112',
     Developer: '1163407094691680346',
     Moderator: '1154731154025488434',
-    Curator: '1163407079168557106',
-    Control: '1163407153273524285',
+    Curator: '1177911423540666389',
+    Control: '1177523605073039380',
     Assistant: '1163407187591299072',
     EventsMod: '1163407206230798416',
     MafiaBunkerMod: '1163407227638534217',
@@ -41,10 +47,11 @@ const StaffRoles = {
 }
 
 const StaffChats = {
-    Control: '1154731363132514324',
-    Assistant: '1000307646588534786',
-    Logs: '1163407565225476127',
-    Obhod: '1177488648212590632'
+    Control: '1177899166215720960',
+    Assistant: '1177899149576900718',
+    Logs: '1177899443329192018',
+    Obhod: '1177488648212590632',
+    Appel: 'https://discord.com/channels/1000307645854519306/1177890571986141224'
 }
 
 const Reasons = {
@@ -87,4 +94,4 @@ const CommandsLogsID = {
     Ban: '</ban:1170111146422964238>',
 }
 
-module.exports = { OwnerId, WorkRoles, StaffRoles, StaffServerRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID };
+module.exports = { OwnerId, WorkRoles, StaffRoles, StaffServerRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID, OwnerRoles };

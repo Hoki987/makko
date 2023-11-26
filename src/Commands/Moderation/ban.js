@@ -58,12 +58,12 @@ module.exports = {
         let expiresAt;
 
         const text = {
-            time: ['**забанен навсегда**', '**забанен на 30 дней**'],
-            banPerm: `**[${HistoryEmojis.Ban}]** Пользователь <@${getUser.user.id}> был **забанен навсегда**\n\`\`\`Причина: ${getReason} \`\`\``,
-            standart: `**[${HistoryEmojis.Ban}]** Пользователь <@${getUser.user.id}> был **забанен на 30 дней**\n\`\`\`Причина: ${getReason} \`\`\``,
-            badOne: `**[${HistoryEmojis.Ban}] Пользователю <@${getUser.user.id}> не было выдано <@&${WorkRoles.Ban}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется предупреждение[0m\`\`\`**`,
+            time: ['**навсегда**', '**на 30 дней**'],
+            banPerm: `**[${HistoryEmojis.Ban}]** Пользователь <@${getUser.user.id}> был **забанен навсегда**\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\``,
+            standart: `**[${HistoryEmojis.Ban}]** Пользователь <@${getUser.user.id}> был **забанен на 30 дней**\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\``,
+            badOne: `**[${HistoryEmojis.Ban}] Пользователю <@${getUser.user.id}> не был выдан <@&${WorkRoles.Ban}>\n\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36mуже имеется бан[0m\`\`\`**`,
             badTwo: `\`\`\`Недостаточно прав!\`\`\``,
-            badThree: `**[${HistoryEmojis.Ban}] Активные записи отсутствуют! <@&${WorkRoles.Ban}> будет снято.**`,
+            badThree: `**[${HistoryEmojis.Ban}] Активные записи отсутствуют! <@&${WorkRoles.Ban}> будет снят.**`,
             Appel: `\`\`\`ansi\n[2;35m[2;30m[2;35mПричина:[0m[2;30m[0m[2;35m[0m [2;36m${getReason}[0m\`\`\` \n${Utility.pointEmoji} Если хотите оспорить наказание, нажмите **на кнопку ниже.**\n${Utility.pointEmoji} Имейте ввиду, что для быстрого решения вопроса вам лучше \n${Utility.fonEmoji} иметь **доказательства** свой невиновности.\n${Utility.pointEmoji} Если ваше обжалование будет сформировано неадекватно,\n ${Utility.fonEmoji} **оно будет закрыто.**`
         }
         const field = {
@@ -121,7 +121,7 @@ module.exports = {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         description = text.banPerm
-                                        color = Utility.colorGreen
+                                        color = Utility.colorDiscord
                                         time = text.time[0]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', null)
                                         await getUser.member.roles.add(WorkRoles.Ban)
@@ -135,7 +135,7 @@ module.exports = {
                                         break;
                                     case await countStaff(interaction.user.id) != 0:
                                         description = text.banPerm
-                                        color = Utility.colorGreen
+                                        color = Utility.colorDiscord
                                         time = text.time[0]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', null)
                                         action(staffSheet, interaction.user.id, 10)
@@ -156,12 +156,12 @@ module.exports = {
                                 }
                                 break;
                             case banReason(Reasons.HARD):
+                                const permBan = [text.banPerm, Utility.colorDiscord, null]
+                                const monthBan = [text.standart, Utility.colorDiscord, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)]
+                                const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'Ban' }, })
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
-                                        const permBan = [text.banPerm, Utility.colorGreen, null]
-                                        const monthBan = [text.standart, Utility.colorGreen, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)]
-                                        const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'Ban' }, })
                                         description = records ? permBan[0] : monthBan[0]
                                         color = records ? permBan[1] : monthBan[1]
                                         expiresAt = records ? permBan[2] : monthBan[2]
@@ -204,7 +204,7 @@ module.exports = {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         description = text.standart
-                                        color = Utility.colorGreen
+                                        color = Utility.colorDiscord
                                         time = text.time[1]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
                                         await getUser.member.roles.add(WorkRoles.Ban)
@@ -218,7 +218,7 @@ module.exports = {
                                         break;
                                     case await countStaff(interaction.user.id) != 0:
                                         description = text.standart
-                                        color = Utility.colorGreen
+                                        color = Utility.colorDiscord
                                         time = text.time[1]
                                         action(staffSheet, interaction.user.id, 10)
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
@@ -242,8 +242,8 @@ module.exports = {
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
-                                        const permBan = [text.banPerm, Utility.colorGreen, null]
-                                        const monthBan = [text.standart, Utility.colorGreen, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)]
+                                        const permBan = [text.banPerm, Utility.colorDiscord, null]
+                                        const monthBan = [text.standart, Utility.colorDiscord, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)]
                                         const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'Ban' }, })
                                         description = records ? permBan[0] : monthBan[0]
                                         color = records ? permBan[1] : monthBan[1]
@@ -275,7 +275,7 @@ module.exports = {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         description = text.banPerm
-                                        color = Utility.colorGreen
+                                        color = Utility.colorDiscord
                                         time = text.time[0]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', null)
                                         await getUser.member.roles.add(WorkRoles.Ban)
@@ -298,8 +298,8 @@ module.exports = {
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
-                                        const permBan = [text.banPerm, Utility.colorGreen, null]
-                                        const monthBan = [text.standart, Utility.colorGreen, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)]
+                                        const permBan = [text.banPerm, Utility.colorDiscord, null]
+                                        const monthBan = [text.standart, Utility.colorDiscord, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)]
                                         const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'Ban' }, })
                                         description = records ? permBan[0] : monthBan[0]
                                         color = records ? permBan[1] : monthBan[1]
@@ -327,7 +327,7 @@ module.exports = {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         description = text.standart
-                                        color = Utility.colorGreen
+                                        color = Utility.colorDiscord
                                         time = text.time[1]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
                                         await getUser.member.roles.add(WorkRoles.Ban)
@@ -350,8 +350,8 @@ module.exports = {
                                 switch (true) {
                                     case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                                     case [OwnerId.hoki].includes(interaction.user.id):
-                                        const permBan = [text.banPerm, Utility.colorGreen, null]
-                                        const monthBan = [text.standart, Utility.colorGreen, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)]
+                                        const permBan = [text.banPerm, Utility.colorDiscord, null]
+                                        const monthBan = [text.standart, Utility.colorDiscord, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)]
                                         const records = await History.count({ where: { target: getUser.user.id, reason: getReason, type: 'Ban' }, })
                                         description = records ? permBan[0] : monthBan[0]
                                         color = records ? permBan[1] : monthBan[1]
@@ -378,39 +378,8 @@ module.exports = {
                         break;
                 }
         }
-        if (!badDescription) {
-        switch (customId) {
-            case `appeal_ban_ControlButton`:
-            case `appeal_ban_AssistButton`:
-            case `appeal_ban_AdminButton`:
-                const findSoft = await History.findOne({
-                    where: {
-                        target: getUser.user.id,
-                        type: 'Ban',
-                        expiresAt: {[Op.gt]: new Date(Date.now())},
-                        reason: getReason
-                    }
-                })
-                console.log(findSoft);
-                if (findSoft === null) {
-                    const findPerm = await History.findOne({
-                        where: {
-                            target: getUser.user.id,
-                            type: 'Ban',
-                            expiresAt: null,
-                            reason: getReason
-                        }
-                    })
-                    console.log(findPerm);
-                    customId = customId + `_${findPerm.id}`
-                } else{ 
-                    customId = customId + `_${findSoft.id}`
-                }
-                break;
-        }
-    }
         const embedAppel = new EmbedBuilder().setDescription(text.Appel).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-        const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+        const AppelButton = new ButtonBuilder().setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Link).setURL(`${StaffChats.Appel}`);
         const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription)
         if (badDescription) {
             await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Ban}**`).setFields(fields)] })
