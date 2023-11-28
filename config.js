@@ -48,7 +48,7 @@ const StaffRoles = {
 
 const StaffChats = {
     Control: '1177899166215720960',
-    Assistant: '1177899149576900718',
+    Assistant: '1178014331284246638',
     Logs: '1177899443329192018',
     Obhod: '1177488648212590632',
     Appel: 'https://discord.com/channels/1000307645854519306/1177890571986141224'

@@ -1,5 +1,5 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, ActionRowBuilder } = require('discord.js');
+const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 //==========< OTHERS >==========\\
 const Canvas = require('@napi-rs/canvas');
 const { join } = require("path");
@@ -32,8 +32,20 @@ module.exports = {
         const isAssistant = interaction.channel.id === StaffChats.Assistant
         const isControl = interaction.channel.id === StaffChats.Control
         let content;
-        async function profile(doc, sheetId) {
+        async function profile(doc, sheetId, customId) {
             try {
+                const marketButton = new ButtonBuilder()
+                    .setLabel('Магазин')
+                    .setCustomId(customId[0])
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🛒')
+                const questButton = new ButtonBuilder()
+                    .setLabel('Квесты')
+                    .setCustomId(customId[1])
+                    .setDisabled(true)
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📑')
+
                 if (target.user.bannerURL() === null) {
                     Canvas.GlobalFonts.registerFromPath(join(__dirname, '..', '..', 'MEDIA', 'Montserrat.ttf'), 'Montserrat SemiBold')
 
@@ -131,7 +143,7 @@ module.exports = {
                     context.drawImage(avatar, 75, 75, 300, 300)
 
                     content = new AttachmentBuilder(await canvas.encode('png'), { name: 'profile-image.png' })
-                    await interaction.editReply({ files: [content] })
+                    await interaction.editReply({ files: [content], components: [new ActionRowBuilder().addComponents(marketButton, questButton)] })
                 } else {
                     Canvas.GlobalFonts.registerFromPath(join(__dirname, '..', '..', 'MEDIA', 'Montserrat.ttf'), 'Montserrat SemiBold')
 
@@ -229,22 +241,22 @@ module.exports = {
                     context.clip();
                     context.drawImage(avatar, 75, 75, 300, 300)
                     content = new AttachmentBuilder(await canvas.encode('png'), { name: 'profile-image.png' })
-                    await interaction.editReply({ files: [content] })
+                    await interaction.editReply({ files: [content], components: [new ActionRowBuilder().addComponents(marketButton, questButton)] })
                 }
             } catch (error) {
                 await interaction.editReply({
                     embeds: [
-                        new EmbedBuilder().setColor(Utility.colorRed).setDescription(`\`\`\`Ничего не найдено по id: ${target.id}\`\`\``).setFooter({ text: '/add - взять на стафф', iconURL: interaction.guild.iconURL()})
+                        new EmbedBuilder().setColor(Utility.colorRed).setDescription(`\`\`\`Ничего не найдено по id: ${target.id}\`\`\``).setFooter({ text: '/add - взять на стафф', iconURL: interaction.guild.iconURL() })
                     ]
                 })
             }
         }
         switch (true) {
             case isAssistant:
-                profile(docAssist, 0)
+                profile(docAssist, 0, ['profile_shop_assist', 'porfile_quest_assist'])
                 break;
             case isControl:
-                profile(doc, 1162940648)
+                profile(doc, 1162940648, ['profile_shop_control', 'porfile_quest_control'])
                 break;
         }
     }
