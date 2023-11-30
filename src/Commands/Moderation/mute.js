@@ -41,6 +41,8 @@ module.exports = {
         const hasRoleExecutor = (id) => interaction.member.roles.cache.has(id);
         const hasRole = (id) => getUser.member.roles.cache.has(id);
 
+        const muteCount = await countDB(getUser.user.id, 'Mute', { [Op.gt]: new Date(new Date().getTime() - 864000000), })
+
         let color;
         let fields;
         let customId;
@@ -118,7 +120,7 @@ module.exports = {
                 break;
             default:
                 switch (true) {
-                    case await countDB(getUser.user.id, 'Mute', { [Op.gt]: new Date(new Date().getTime() - 864000000), }) >= 2:
+                    case muteCount > 0 && muteCount % 3 === 2:
                         switch (staffSheet) {
                             case 0:
                             case 1162940648:

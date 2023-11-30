@@ -39,7 +39,7 @@ module.exports = {
             const banJPG = history.find(bj => bj.type === 'BanJPG' && bj.expiresAt.getTime() > Date.now())
             const ban = history.find(b => b.type === 'Ban' && b.expiresAt === null || b.type === 'Ban' && b.expiresAt.getTime() > Date.now())
             const pred = history.find(p => p.type === 'Pred' && p.expiresAt.getTime() > Date.now())
-            console.log(ban);
+
             if (warns.length) {
                 description += `Активных варнов: ${warns.length}\n`
             }

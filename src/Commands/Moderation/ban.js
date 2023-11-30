@@ -125,13 +125,7 @@ module.exports = {
                                         time = text.time[0]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', null)
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     case await countStaff(interaction.user.id) != 0:
                                         description = text.banPerm
@@ -140,13 +134,7 @@ module.exports = {
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', null)
                                         action(staffSheet, interaction.user.id, 10)
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     default:
                                         fields = field.Bad
@@ -168,13 +156,7 @@ module.exports = {
                                         time = records ? text.time[0] : text.time[1]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', expiresAt)
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     case await countStaff(interaction.user.id) != 0:
                                         description = records ? permBan[0] : monthBan[0]
@@ -184,13 +166,7 @@ module.exports = {
                                         action(staffSheet, interaction.user.id, 10)
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', expiresAt)
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     default:
                                         fields = field.Bad
@@ -208,13 +184,7 @@ module.exports = {
                                         time = text.time[1]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     case await countStaff(interaction.user.id) != 0:
                                         description = text.standart
@@ -223,13 +193,7 @@ module.exports = {
                                         action(staffSheet, interaction.user.id, 10)
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     default:
                                         fields = field.Bad
@@ -251,13 +215,7 @@ module.exports = {
                                         time = records ? text.time[0] : text.time[1]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', expiresAt)
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     default:
                                         fields = field.Bad
@@ -279,13 +237,7 @@ module.exports = {
                                         time = text.time[0]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', null)
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     default:
                                         fields = field.Bad
@@ -307,13 +259,7 @@ module.exports = {
                                         time = records ? text.time[0] : text.time[1]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', expiresAt)
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     default:
                                         fields = field.Bad
@@ -331,13 +277,7 @@ module.exports = {
                                         time = text.time[1]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     default:
                                         fields = field.Bad
@@ -359,13 +299,7 @@ module.exports = {
                                         time = records ? text.time[0] : text.time[1]
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Ban', expiresAt)
                                         await getUser.member.roles.add(WorkRoles.Ban)
-                                        await getUser.member.roles.cache.forEach(r => {
-                                            if (Object.values(UntilsRoles).includes(r.id)) {
-                                                return;
-                                            } else {
-                                                getUser.member.roles.remove(r.id)
-                                            }
-                                        })
+                                        await getUser.member.roles.remove(getUser.member.roles.cache.filter(r => !Object.values(UntilsRoles).includes(r.id)))
                                         break;
                                     default:
                                         fields = field.Bad

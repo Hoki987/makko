@@ -4,7 +4,7 @@ const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
 const History = require('../../Structures/Models/History.js');
 const { Op } = require("sequelize");
 const cron = require('node-cron');
-const { WorkRoles, Utility, StaffChats, StaffServerRoles } = require('../../../config.js');
+const { WorkRoles, Utility, StaffChats, StaffServerRoles, PunishmentRemoveMessage } = require('../../../config.js');
 
 //===========================================< Code >===========================\\
 module.exports = {
@@ -30,7 +30,7 @@ module.exports = {
             .setStyle(ButtonStyle.Success)
 
         const channel = client.channels.cache.get(StaffChats.Obhod)
-        cron.schedule('* 1 * * *', async () => {
+        cron.schedule('0 * * * *', async () => {
             const messages = await channel.messages.fetch({ limit: 1 })
             const last = messages.last();
             if (last === undefined) {
@@ -62,6 +62,7 @@ module.exports = {
                 const member = await guild.members.fetch(history.target).catch(() => null)
 
                 await member?.roles.remove(WorkRoles[history.type])
+                await member?.send({ embeds: [new EmbedBuilder().setDescription(PunishmentRemoveMessage[history.type]).setFooter({ text: `Сервер | ${guild.name}`, iconURL: guild.iconURL() })] })
             }
         }, {
             timezone: 'Europe/Moscow'

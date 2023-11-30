@@ -85,6 +85,23 @@ const HistoryEmojis = {
     Warn: "<:warn:1163067431737106492>"
 }
 
+const HistoryNames = {
+    Ban: "бан",
+    Pred: "предупреждение",
+    BanCam: "запрет камеры",
+    BanJPG: "запрет картинок",
+    Mute: "мут",
+    Warn: "варн"
+}
+
+const PunishmentRemoveMessage = {
+    Ban: "Вы были **разбанены**",
+    Pred: "У вас было снято **предупреждение**",
+    BanCam: "У вас был снят **запрет камеры**",
+    BanJPG: "У вас был снят **запрет картинок**",
+    Mute: "Время мута истекло, вы были **размучены**",
+}
+
 const CommandsLogsID = {
     Mute: '</mute:1170111146863370383>',
     Pred: '</pred:1170111146863370384>',
@@ -94,4 +111,4 @@ const CommandsLogsID = {
     Ban: '</ban:1170111146422964238>',
 }
 
-module.exports = { OwnerId, WorkRoles, StaffRoles, StaffServerRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID, OwnerRoles };
+module.exports = { OwnerId, WorkRoles, StaffRoles, StaffServerRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID, OwnerRoles, HistoryNames, PunishmentRemoveMessage };
