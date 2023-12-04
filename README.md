@@ -1,2 +1,2 @@
 # makko
-Advanced Moderation bot
+Moderation bot

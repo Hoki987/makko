@@ -59,10 +59,12 @@ module.exports = {
             const guild = client.guilds.cache.get(Utility.guildId)
 
             for (const history of histories.filter(t => t.type !== 'Warn')) {
+                const hasRole = (id) => member.roles.cache.has(id)
                 const member = await guild.members.fetch(history.target).catch(() => null)
-
-                await member?.roles.remove(WorkRoles[history.type])
-                await member?.send({ embeds: [new EmbedBuilder().setDescription(PunishmentRemoveMessage[history.type]).setFooter({ text: `Сервер | ${guild.name}`, iconURL: guild.iconURL() })] })
+                if (hasRole(WorkRoles[history.type])) {
+                    await member?.roles.remove(WorkRoles[history.type]) &&
+                        await member?.send({ embeds: [new EmbedBuilder().setDescription(PunishmentRemoveMessage[history.type]).setColor(Utility.colorDiscord).setFooter({ text: `Сервер | ${guild.name}`, iconURL: guild.iconURL() })] })
+                }
             }
         }, {
             timezone: 'Europe/Moscow'

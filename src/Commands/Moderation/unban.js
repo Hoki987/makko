@@ -73,6 +73,7 @@ module.exports = {
                 color = Utility.colorDiscord;
                 break;
             case !hasRole(WorkRoles.Ban):
+                console.log(7);
                 badDescription = text.badThree
                 color = Utility.colorRed
                 fields = field.Bad
@@ -80,6 +81,8 @@ module.exports = {
             default:
                 const lastNullBan = await findOneDB(getUser.user.id, 'Ban', null)
                 const lastBan = await findOneDB(getUser.user.id, 'Ban', { [Op.gt]: new Date() })
+                console.log(lastNullBan);
+                console.log(lastBan);
                 switch (staffSheet) {
                     case 0:
                     case 1162940648:
@@ -88,19 +91,22 @@ module.exports = {
                             case [OwnerId.hoki].includes(interaction.user.id):
                             case await countStaff(interaction.user.id) != 0:
                                 switch (true) {
-                                    case lastBan != null:
+                                    case lastBan !== null:
+                                        console.log(3);
                                         description = text.standart
                                         color = Utility.colorGreen
                                         await History.update({ expiresAt: lastBan.createdAt.getTime() }, { where: { id: lastBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
                                         break;
-                                    case lastNullBan === null:
+                                    case lastNullBan !== null:
+                                        console.log(2);
                                         description = text.standart
                                         color = Utility.colorGreen
                                         await History.update({ expiresAt: lastNullBan.createdAt }, { where: { id: lastNullBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
                                         break;
                                     default:
+                                        console.log(1);
                                         badDescription = text.badThree
                                         color = Utility.colorRed
                                         fields = field.Bad
@@ -119,22 +125,25 @@ module.exports = {
                             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
                             case [OwnerId.hoki].includes(interaction.user.id):
                                 switch (true) {
-                                    case lastBan != null:
+                                    case lastBan:
                                         description = text.standart
                                         color = Utility.colorGreen
                                         await History.update({ expiresAt: lastBan.createdAt.getTime() }, { where: { id: lastBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
+                                        console.log(6);
                                         break;
-                                    case lastNullBan === null:
+                                    case lastNullBan:
                                         description = text.standart
                                         color = Utility.colorGreen
                                         await History.update({ expiresAt: lastNullBan.createdAt }, { where: { id: lastNullBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
+                                        console.log(5);
                                         break;
                                     default:
                                         badDescription = text.badThree
                                         color = Utility.colorRed
                                         fields = field.Bad
+                                        console.log(4);
                                         break;
                                 }
                             default:

@@ -3,9 +3,10 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder }
 
 //==========< OTHERS >==========\\
 const { Utility } = require('../../../config.js');
-const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
 const { StaffChats } = require('../../../config.js');
 const { addStaff } = require('../../Structures/Untils/Functions/actionDB.js');
+const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js');
+const Staff = require('../../Structures/Models/Staff.js');
 //===========================================< Code >===========================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -20,6 +21,7 @@ module.exports = {
      */
 
     async execute(client, interaction) {
+        await interaction.deferReply()
         if (![StaffChats.Assistant, StaffChats.Control].includes(interaction.channel.id)) {
             await interaction.reply({
                 ephemeral: true,
@@ -29,35 +31,42 @@ module.exports = {
         }
         const isAssistant = interaction.channel.id === StaffChats.Assistant
         const isControl = interaction.channel.id === StaffChats.Control
+        const getUser = interaction.options.get('пользователь');
 
         let staffSheet;
         let description;
+        let dmDescription;
         let Position;
 
         switch (true) {
             case isControl:
-                await doc.loadInfo()
-                staffSheet = doc.sheetsById[1162940648]
-                description = `Вы взяли на должность Контрола`
+                staffSheet = 1162940648
+                description = `Вы взяли на должность Контрола <@${getUser.user.id}>`
                 Position = 'Control'
                 break;
             case isAssistant:
-                await docAssist.loadInfo()
-                description = `Вы взяли на должность Ассистента`
-                staffSheet = docAssist.sheetsById[0]
+                description = `Вы взяли на должность Ассистента <@${getUser.user.id}>`
+                staffSheet = 0
                 Position = 'Assistant'
                 break;
         }
 
-        const getUser = interaction.options.get('пользователь');
-        const sheet = staffSheet;
-
-        const embed = new EmbedBuilder().setDescription(description + ` <@${getUser.user.id}>`).setColor(Utility.colorDiscord)
-        const dmembed = new EmbedBuilder().setDescription('**Стафф сервер** - https://discord.gg/W96xcfDUfU').setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() })
-
-        await sheet.addRow({ Tag: getUser.user.tag, ID: getUser.user.id, Position: Position, Date: new Date().toLocaleDateString('en-US') })
-        await addStaff(getUser.user.tag, getUser.user.id)
-        await interaction.reply({ embeds: [embed] })
-        await getUser.user.send({ embeds: [dmembed] })
+        switch (true) {
+            case await fetchStaff(staffSheet, getUser.user.id) && await Staff.count({ where: { PersonalId: getUser.user.id } }) > 1:
+                description = `Пользователь <@${getUser.user.id}> уже в стаффе.`
+                break;
+            default:
+                dmDescription = '**Стафф сервер** - https://discord.gg/W96xcfDUfU'
+                break;
+        }
+        const embed = new EmbedBuilder().setDescription(description).setColor(Utility.colorDiscord)
+        if (dmDescription) {
+            const dmembed = new EmbedBuilder().setDescription(dmDescription).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() })
+            await addStaff(getUser.user.tag, getUser.user.id, Position, staffSheet)
+            await interaction.editReply({ embeds: [embed] })
+            await getUser.user.send({ embeds: [dmembed] })
+        } else {
+            await interaction.editReply({ embeds: [embed] })
+        }
     }
 }

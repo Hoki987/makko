@@ -2,9 +2,10 @@
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 //==========< OTHERS >==========\\
 const { Utility } = require('../../../config.js');
-const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
-const { StaffChats } = require('../../../config.js')
+const { StaffChats } = require('../../../config.js');
+const Staff = require('../../Structures/Models/Staff.js');
 const { delStaff } = require('../../Structures/Untils/Functions/actionDB.js');
+const { fetchStaff } = require('../../Structures/Untils/Functions/fetchStaff.js');
 //===========================================< Code >===========================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -19,6 +20,7 @@ module.exports = {
      */
 
     async execute(client, interaction) {
+        await interaction.deferReply()
         if (![StaffChats.Assistant, StaffChats.Control].includes(interaction.channel.id)) {
             await interaction.reply({
                 ephemeral: true,
@@ -28,40 +30,39 @@ module.exports = {
         }
         const isAssistant = interaction.channel.id === StaffChats.Assistant
         const isControl = interaction.channel.id === StaffChats.Control
+        const getUser = interaction.options.get('пользователь');
 
         let staffSheet;
         let description;
         let dmdescription;
+        let Position;
 
         switch (true) {
             case isControl:
-                await doc.loadInfo()
-                staffSheet = doc.sheetsById[1162940648]
-                description = `Вы сняли с должности Контрола`
+                staffSheet = 1162940648
+                Position = 'Control'
+                description = `Вы сняли с должности Контрола <@${getUser.user.id}>`
                 dmdescription = `Вы были сняты c должности Контрола`
                 break;
             case isAssistant:
-                await docAssist.loadInfo()
-                staffSheet = docAssist.sheetsById[0]
-                description = `Вы сняли с должности Ассистента`
+                staffSheet = 0
+                Position = 'Assistant'
+                description = `Вы сняли с должности Ассистента <@${getUser.user.id}>`
                 dmdescription = `Вы были сняты c должности Ассистента`
                 break;
         }
-        try {
-            const getUser = interaction.options.get('пользователь');
-            const sheet = staffSheet;
+        const embed = new EmbedBuilder().setDescription(description).setColor(Utility.colorDiscord)
 
-            const embed = new EmbedBuilder().setDescription(description + ` <@${getUser.user.id}>`).setColor(Utility.colorDiscord)
-            const dmembed = new EmbedBuilder().setDescription(dmdescription).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-
-            const rows = await sheet.getRows();
-            const row = rows.find((r) => r._rawData.includes(getUser.user.id))
-            await row.delete()
-            await delStaff(getUser.user.id)
-            await interaction.reply({ embeds: [embed] })
-            await getUser.user.send({ embeds: [dmembed] })
-        } catch (error) {
-            await interaction.reply({ embeds: [new EmbedBuilder().setDescription('Пользователь не находится в стаффе!').setColor(Utility.colorRed)] })
+        switch (true) {
+            case await fetchStaff(staffSheet, getUser.user.id) && await Staff.count({ where: { PersonalId: getUser.user.id, Position: Position } }) > 0:
+                const dmembed = new EmbedBuilder().setDescription(dmdescription).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+                await delStaff(getUser.user.id, Position, staffSheet)
+                await interaction.editReply({ embeds: [embed] })
+                await getUser.user.send({ embeds: [dmembed] })
+                break;
+            default:
+                await interaction.editReply({embeds: [new EmbedBuilder().setDescription(`Пользователь <@${getUser.user.id}> не находится в стаффе`)]})
+                break;
         }
     }
 }

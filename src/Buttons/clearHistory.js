@@ -18,7 +18,6 @@ module.exports = {
      */
 
     async execute(client, interaction) {
-        console.log(interaction.customId);
         const [, action, type, target, id] = interaction.customId.split('_')
         const pages = interaction.message.embeds[0].footer?.text.split('/')
         const page = Number(pages ? pages[0].replace(/\D/g, '') : 1)

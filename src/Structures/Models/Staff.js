@@ -12,6 +12,10 @@ const Staff = sequelize.define(
             type: DataTypes.STRING, // id человека со стаффа
             allowNull: false,
         },
+        Position: {
+            type: DataTypes.STRING, // в каком стаффе стоит
+            allowNull: false,
+        },
     },
     {
         tableName: 'Staff',
