@@ -23,6 +23,98 @@ async function action(staffSheet, user, column) {
     cell.value = Number(cell.value || 0) + 1
     sheet.saveUpdatedCells();
 }
+
+async function actionPlus(staffSheet, user, column) {
+    let sheet;
+    switch (true) {
+        case staffSheet === 0:
+            await docAssist.loadInfo()
+            sheet = docAssist.sheetsById[staffSheet]
+            break;
+        case staffSheet === 1162940648:
+            await doc.loadInfo()
+            sheet = doc.sheetsById[staffSheet]
+            break;
+        default:
+            return true;
+    }
+    await sheet.loadCells()
+    const rows = await sheet.getRows();
+    const row = rows.find((r) => r._rawData.includes(user))
+    const cell = sheet.getCell(row.rowNumber - 1, column)
+
+    cell.value = Number(cell.value || 0) + 1
+    sheet.saveUpdatedCells();
+}
+
+async function actionMinus(staffSheet, user, column) {
+    let sheet;
+    switch (true) {
+        case staffSheet === 0:
+            await docAssist.loadInfo()
+            sheet = docAssist.sheetsById[staffSheet]
+            break;
+        case staffSheet === 1162940648:
+            await doc.loadInfo()
+            sheet = doc.sheetsById[staffSheet]
+            break;
+        default:
+            return true;
+    }
+    await sheet.loadCells()
+    const rows = await sheet.getRows();
+    const row = rows.find((r) => r._rawData.includes(user))
+    const cell = sheet.getCell(row.rowNumber - 1, column)
+
+    cell.value = Number(cell.value) - Number(cell.value)
+    sheet.saveUpdatedCells();
+}
+
+async function anyCellMinus(staffSheet, user, column, count) {
+    let sheet;
+    switch (true) {
+        case staffSheet === 0:
+            await docAssist.loadInfo()
+            sheet = docAssist.sheetsById[staffSheet]
+            break;
+        case staffSheet === 1162940648:
+            await doc.loadInfo()
+            sheet = doc.sheetsById[staffSheet]
+            break;
+        default:
+            return true;
+    }
+    await sheet.loadCells()
+    const rows = await sheet.getRows();
+    const row = rows.find((r) => r._rawData.includes(user))
+    const cell = sheet.getCell(row.rowNumber - 1, column)
+
+    cell.value = Number(cell.value) - Number(count)
+    sheet.saveUpdatedCells();
+}
+
+async function cellValue(staffSheet, user, column) {
+    let sheet;
+    switch (true) {
+        case staffSheet === 0:
+            await docAssist.loadInfo()
+            sheet = docAssist.sheetsById[staffSheet]
+            break;
+        case staffSheet === 1162940648:
+            await doc.loadInfo()
+            sheet = doc.sheetsById[staffSheet]
+            break;
+        default:
+            return true;
+    }
+    await sheet.loadCells()
+    const rows = await sheet.getRows();
+    const row = rows.find((r) => r._rawData.includes(user))
+    const day = (new Date().getDay() + 1) % 7
+    const cell = sheet.getCell(row.rowNumber - 1, column)
+
+    return Number(cell.value);
+}
 async function timeAction(staffSheet, user, column, time) {
     let sheet;
     switch (true) {
@@ -136,4 +228,4 @@ async function tableValue(staffSheet, user) {
     ]
 }
 
-module.exports = { action, MuteWarnBan, timeAction, tableValue }
+module.exports = { action, actionMinus, actionPlus, MuteWarnBan, timeAction, tableValue, cellValue, anyCellMinus }

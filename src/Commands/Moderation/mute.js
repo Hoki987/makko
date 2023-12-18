@@ -3,7 +3,7 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, 
 //==========< OTHERS >==========\\
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID, UntilsRoles } = require('../../../config.js');
 const { action, MuteWarnBan } = require('../../Structures/Untils/Functions/action.js');
-const { createDB, countDB, countStaff, findOneDB } = require('../../Structures/Untils/Functions/actionDB.js');
+const { createDB, countDB, countStaff } = require('../../Structures/Untils/Functions/actionDB.js');
 const { Op } = require('sequelize');
 const History = require('../../Structures/Models/History.js');
 //===========================================< Code >===========================================\\
@@ -136,7 +136,7 @@ module.exports = {
                                             fields = field.BanWarnMute
                                             await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
                                             if (hasRole(WorkRoles.Pred)) {
-                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                                 if (findPred) {
                                                     await getUser.member.roles.remove(WorkRoles.Pred)
                                                     await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
@@ -161,7 +161,7 @@ module.exports = {
                                             fields = field.MuteWarn
                                             await getUser.member.roles.add(WorkRoles.Mute)
                                             if (hasRole(WorkRoles.Pred)) {
-                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                                 if (findPred) {
                                                     await getUser.member.roles.remove(WorkRoles.Pred)
                                                     await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
@@ -184,7 +184,7 @@ module.exports = {
                                             fields = field.BanWarnMute
                                             await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
                                             if (hasRole(WorkRoles.Pred)) {
-                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                                 if (findPred) {
                                                     await getUser.member.roles.remove(WorkRoles.Pred)
                                                     await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
@@ -210,7 +210,7 @@ module.exports = {
                                             fields = field.MuteWarn
                                             await getUser.member.roles.add(WorkRoles.Mute)
                                             if (hasRole(WorkRoles.Pred)) {
-                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                                 if (findPred) {
                                                     await getUser.member.roles.remove(WorkRoles.Pred)
                                                     await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
@@ -242,7 +242,7 @@ module.exports = {
                                             fields = field.BanWarnMute
                                             await getUser.member.roles.add(WorkRoles.Ban) && await getUser.member.roles.add(WorkRoles.Mute)
                                             if (hasRole(WorkRoles.Pred)) {
-                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                                 if (findPred) {
                                                     await getUser.member.roles.remove(WorkRoles.Pred)
                                                     await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
@@ -267,7 +267,7 @@ module.exports = {
                                             fields = field.MuteWarn
                                             await getUser.member.roles.add(WorkRoles.Mute)
                                             if (hasRole(WorkRoles.Pred)) {
-                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                                const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                                 if (findPred) {
                                                     await getUser.member.roles.remove(WorkRoles.Pred)
                                                     await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
@@ -300,7 +300,7 @@ module.exports = {
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                         await getUser.member.roles.add(WorkRoles.Mute)
                                         if (hasRole(WorkRoles.Pred)) {
-                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                             if (findPred) {
                                                 await getUser.member.roles.remove(WorkRoles.Pred)
                                                 await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
@@ -318,7 +318,7 @@ module.exports = {
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                         await getUser.member.roles.add(WorkRoles.Mute)
                                         if (hasRole(WorkRoles.Pred)) {
-                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                             if (findPred) {
                                                 await getUser.member.roles.remove(WorkRoles.Pred)
                                                 await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })
@@ -345,7 +345,7 @@ module.exports = {
                                         await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                         await getUser.member.roles.add(WorkRoles.Mute)
                                         if (hasRole(WorkRoles.Pred)) {
-                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: {[Op.gt]: new Date()} } })
+                                            const findPred = await History.findOne({ where: { target: getUser.user.id, type: 'Pred', expiresAt: { [Op.gt]: new Date() } } })
                                             if (findPred) {
                                                 await getUser.member.roles.remove(WorkRoles.Pred)
                                                 await History.update({ expiresAt: findPred.createdAt.getTime() }, { where: { id: findPred.id } })

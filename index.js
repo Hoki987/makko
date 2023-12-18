@@ -6,7 +6,7 @@ require("dotenv").config();
 //======================< Function >===================\\
 const { loadDatabase } = require("./src/Structures/Handlers/Loaders/loadDatabase.js");
 const { loadCommands } = require("./src/Structures/Handlers/Loaders/loadCommands.js");
-const { loadEvents } = require("./src/Structures/Handlers/Loaders/loadEvents.js");;
+const { loadEvents } = require("./src/Structures/Handlers/Loaders/loadEvents.js");
 //======================< Client >===================\\
 const client = new Client({
     intents: [
@@ -62,7 +62,6 @@ client.login(process.env.TOKEN).then(() => {
     loadCommands(client, color);
 })
     .catch(err => {
-        console.log(err);
         console.log(`${color.bold.red(`[INDEX ERROR] `)}` + `${err}.`.bgRed);
     });
 module.exports = client;

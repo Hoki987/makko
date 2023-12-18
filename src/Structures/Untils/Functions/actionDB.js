@@ -22,7 +22,7 @@ async function addStaff(Tag, PersonalId, Position, staffSheet) {
         Tag: Tag,
         ID: PersonalId,
         Position: Position,
-        Date: new Date().toLocaleDateString('en-US')
+        Date: new Date().toLocaleDateString('en-US'),
     }) && await Staff.create({
         Tag: Tag,
         PersonalId: PersonalId,
@@ -35,10 +35,12 @@ async function delStaff(PersonalId, Position, staffSheet) {
     switch (true) {
         case staffSheet === 0:
             await docAssist.loadInfo()
+            await docAssist.loadCells("A1:BO18")
             sheet = docAssist.sheetsById[staffSheet]
             break;
         case staffSheet === 1162940648:
             await doc.loadInfo()
+            await doc.loadCells("A1:BO18")
             sheet = doc.sheetsById[staffSheet]
             break;
         default:
@@ -46,7 +48,15 @@ async function delStaff(PersonalId, Position, staffSheet) {
     }
     const rows = await sheet.getRows();
     const row = rows.find((r) => r._rawData.includes(PersonalId))
-    await row.delete() && await Staff.destroy({
+
+    await sheet.clear(`A${row.rowNumber}:D${row.rowNumber}`)
+    await sheet.clear(`F${row.rowNumber}:BD${row.rowNumber}`)
+    await sheet.loadCells()
+    let cell = sheet.getCellByA1(`BO${row.rowNumber}`)
+    cell.formula = `=BM${row.rowNumber} + 0`
+    await sheet.saveUpdatedCells();
+
+    await Staff.destroy({
         where: {
             PersonalId: PersonalId,
             Position: Position

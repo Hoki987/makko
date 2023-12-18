@@ -19,11 +19,13 @@ const UntilsRoles = {
 }
 
 const StaffServerRoles = {
+    Owner: '1083514931984482304',
     Admin: '1154731145552986112',
     Developer: '1163407094691680346',
     Moderator: '1154731154025488434',
     Curator: '1177911423540666389',
     Control: '1177523605073039380',
+    Assistant: '1163407187591299072'
 }
 
 const OwnerRoles = {
@@ -50,6 +52,7 @@ const StaffChats = {
     Control: '1177899166215720960',
     Assistant: '1177899149576900718',
     Logs: '1177899443329192018',
+    StaffServerLogs: "1186245205351989268",
     Obhod: '1177488648212590632',
     Appel: 'https://discord.com/channels/1000307645854519306/1177890571986141224'
 }

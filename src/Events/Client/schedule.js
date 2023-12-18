@@ -5,6 +5,7 @@ const History = require('../../Structures/Models/History.js');
 const { Op } = require("sequelize");
 const cron = require('node-cron');
 const { WorkRoles, Utility, StaffChats, StaffServerRoles, PunishmentRemoveMessage } = require('../../../config.js');
+const { countStaff } = require("../../Structures/Untils/Functions/actionDB.js");
 
 //===========================================< Code >===========================\\
 module.exports = {
@@ -49,7 +50,6 @@ module.exports = {
             timezone: 'Europe/Moscow'
         })
 
-
         cron.schedule('* * * * *', async () => {
             const histories = await History.findAll({
                 where: {
@@ -73,12 +73,12 @@ module.exports = {
         cron.schedule('0 0 * * 6', async () => {
             await sheetAssist.loadCells()
             let rowIndex = 3
-            let cell = sheet.getCell(rowIndex, 65)
+            let cell = sheet.getCell(rowIndex, 66)
             while (cell.value !== null) {
                 cell.formula = `=${sheet.getCell(rowIndex, 64).a1Address} + ${cell.value}`
 
                 rowIndex++
-                cell = sheetAssist.getCell(rowIndex, 65)
+                cell = sheetAssist.getCell(rowIndex, 66)
             }
             await sheetAssist.saveUpdatedCells();
             await sheetAssist.duplicate();
@@ -90,16 +90,35 @@ module.exports = {
         cron.schedule('0 0 * * 6', async () => {
             await sheet.loadCells()
             let rowIndex = 3
-            let cell = sheet.getCell(rowIndex, 65)
+            let cell = sheet.getCell(rowIndex, 66)
             while (cell.value !== null) {
                 cell.formula = `=${sheet.getCell(rowIndex, 64).a1Address} + ${cell.value}`
 
                 rowIndex++
-                cell = sheet.getCell(rowIndex, 65)
+                cell = sheet.getCell(rowIndex, 66)
             }
             await sheet.saveUpdatedCells();
             await sheet.duplicate();
             await sheet.clear('H4:BD24');
+        }, {
+            timezone: 'Europe/Moscow'
+        });
+
+        cron.schedule("0 * * * *", async () => {
+            const stuffServer = client.guilds.cache.get(Utility.StuffServer)
+
+            stuffServer.members.cache.forEach(async member => {
+                if (member.roles.cache.find((role) => Object.values(StaffServerRoles).includes(role.id))) {
+                    return
+                } else {
+                    console.log(await countStaff(member.user.id));
+                    if (await countStaff(member.user.id)) {
+                        member.roles.add(StaffServerRoles.Control)
+                    } else {
+                        member.kick("Отсутствует стафф роль.") && await client.channels.cache.get(StaffChats.StaffServerLogs).send({ embeds: [new EmbedBuilder().setColor(Utility.colorDiscord).setAuthor({ name: `Исключен: ${member.user.username} | ${member.user.id}`, iconURL: member.user.displayAvatarURL() }).setDescription("```Причина: Отсутствует стафф роль.```").setFooter({ text: "Выполнил(а): СИСТЕМА" })] })
+                    }
+                }
+            })
         }, {
             timezone: 'Europe/Moscow'
         });
