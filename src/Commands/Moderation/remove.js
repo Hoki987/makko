@@ -61,7 +61,7 @@ module.exports = {
                 await getUser.user.send({ embeds: [dmembed] })
                 break;
             default:
-                await interaction.editReply({embeds: [new EmbedBuilder().setDescription(`Пользователь <@${getUser.user.id}> не находится в стаффе`)]})
+                await interaction.editReply({ embeds: [new EmbedBuilder().setDescription(`Пользователь <@${getUser.user.id}> не находится в стаффе`)] })
                 break;
         }
     }

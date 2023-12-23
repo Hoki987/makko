@@ -27,7 +27,7 @@ module.exports = {
 
         const button = new ButtonBuilder()
             .setLabel('Принять')
-            .setCustomId(`ready_accept_${interaction.user.id}`)
+            .setCustomId(`ready_acceptVoice_${interaction.user.id}`)
             .setStyle(ButtonStyle.Success)
 
         const channel = client.channels.cache.get(StaffChats.Obhod)
@@ -43,6 +43,34 @@ module.exports = {
                         break;
                     case 'Обход окончен':
                         channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] })
+                        break;
+                }
+            }
+        }, {
+            timezone: 'Europe/Moscow'
+        })
+
+        const embedChat = new EmbedBuilder()
+            .setDescription('Обход')
+
+        const buttonChat = new ButtonBuilder()
+            .setLabel('Принять')
+            .setCustomId(`ready_acceptChat_${interaction.user.id}`)
+            .setStyle(ButtonStyle.Success)
+
+        const channelChat = client.channels.cache.get(StaffChats.ObhodChat)
+        cron.schedule('0 * * * *', async () => {
+            const messages = await channelChat.messages.fetch({ limit: 1 })
+            const last = messages.last();
+            if (last === undefined) {
+                channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
+            } else {
+                switch (last.content) {
+                    case `<@&${StaffServerRoles.Control}>, новый обход!`:
+                        last.delete() && channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
+                        break;
+                    case 'Обход окончен':
+                        channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
                         break;
                 }
             }

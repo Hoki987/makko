@@ -1,7 +1,7 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 //==========< OTHERS >==========\\
-const { Utility, StaffChats, StaffRoles, UntilsRoles } = require('../../../config.js');
+const { Utility, StaffChats } = require('../../../config.js');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -46,6 +46,6 @@ module.exports = {
         }
         
         const embed = new EmbedBuilder().setDescription(description).setColor(Utility.colorDiscord)
-        await interaction.reply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`Чат: <#${interaction.channel.id}>`).setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })] })
+        await interaction.reply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`Чат: <#${interaction.channel.id}>`).setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })] })
     }
 }

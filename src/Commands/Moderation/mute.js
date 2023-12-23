@@ -45,7 +45,6 @@ module.exports = {
 
         let color;
         let fields;
-        let customId;
         let staffSheet;
         let time;
 
@@ -72,15 +71,13 @@ module.exports = {
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
-                customId = 'mute_ControlButton'
                 break;
             case isAssistant:
                 staffSheet = 0
-                customId = 'mute_AssistButton'
                 break;
-            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
+            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+            case [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null
-                customId = 'mute_AdminButton'
                 break;
             default:
                 staffSheet = undefined
@@ -108,7 +105,7 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
-            case hasRole(WorkRoles.Mute) && await countStaff(interaction.user.id) === 0 && (!hasRoleExecutor(StaffRoles.Developer) || !hasRoleExecutor(StaffRoles.Moderator) || !hasRoleExecutor(StaffRoles.Admin)) && ![OwnerId.hoki].includes(interaction.user.id):
+            case hasRole(WorkRoles.Mute) && await countStaff(interaction.user.id) === 0 && (!hasRoleExecutor(StaffRoles.Admin)) && ![OwnerId.hoki].includes(interaction.user.id):
                 badDescription = text.badTwo;
                 fields = field.Bad
                 color = Utility.colorDiscord;
@@ -125,7 +122,7 @@ module.exports = {
                             case 0:
                             case 1162940648:
                                 switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin) || hasRoleExecutor(StaffRoles.Developer) || hasRoleExecutor(StaffRoles.Moderator):
+                                    case hasRoleExecutor(StaffRoles.Admin):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
@@ -173,9 +170,9 @@ module.exports = {
                                             }
                                         }
                                         break;
-                                    case await countStaff(interaction.user.id) != 0:
+                                    case await countStaff(interaction.user.id) !== 0:
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
-                                            MuteWarnBan(staffSheet, interaction.user.id, true)
+                                            MuteWarnBan(staffSheet, interaction.user.id, false)
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
                                             await createDB(interaction.user.id, getUser.user.id, '4.3', 'Ban', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30))
@@ -202,7 +199,7 @@ module.exports = {
                                                 }
                                             })
                                         } else {
-                                            MuteWarnBan(staffSheet, interaction.user.id, false)
+                                            MuteWarnBan(staffSheet, interaction.user.id, true)
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
                                             await createDB(interaction.user.id, getUser.user.id, '4.3', 'Warn', new Date(Date.now() + 1209600000))
                                             ComplexDescription = text.ComplexTwo
@@ -231,7 +228,7 @@ module.exports = {
                                 break;
                             case null:
                                 switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                    case hasRoleExecutor(StaffRoles.Admin):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         if (await countDB(getUser.user.id, 'Warn', undefined, { [Op.gt]: new Date() }) >= 2) {
                                             await createDB(interaction.user.id, getUser.user.id, getReason, 'Mute', new Date(Date.now() + time))
@@ -293,7 +290,7 @@ module.exports = {
                             case 0:
                             case 1162940648:
                                 switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin) || hasRoleExecutor(StaffRoles.Developer) || hasRoleExecutor(StaffRoles.Moderator):
+                                    case hasRoleExecutor(StaffRoles.Admin):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         description = text.standart
                                         color = Utility.colorDiscord
@@ -311,7 +308,7 @@ module.exports = {
                                             break;
                                         }
                                         break;
-                                    case await countStaff(interaction.user.id) != 0:
+                                    case await countStaff(interaction.user.id) !== 0:
                                         action(staffSheet, interaction.user.id, 7)
                                         description = text.standart
                                         color = Utility.colorDiscord
@@ -338,7 +335,7 @@ module.exports = {
                                 break;
                             case null:
                                 switch (true) {
-                                    case hasRoleExecutor(StaffRoles.Admin) || hasRoleExecutor(StaffRoles.Developer) || hasRoleExecutor(StaffRoles.Moderator):
+                                    case hasRoleExecutor(StaffRoles.Admin):
                                     case [OwnerId.hoki].includes(interaction.user.id):
                                         description = text.standart
                                         color = Utility.colorDiscord
@@ -369,17 +366,17 @@ module.exports = {
                 break;
         }
         const embedAppel = new EmbedBuilder().setDescription(text.Appel).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-        const AppelButton = new ButtonBuilder().setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Link).setURL(`${StaffChats.Appel}`);
+        const AppelButton = new ButtonBuilder().setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Link).setURL(`${StaffChats.Appel}`);
         const embed = new EmbedBuilder().setColor(color).setDescription(description || ComplexDescription || badDescription)
 
         if (badDescription) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Mute}**`).setFields(fields)] })
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Mute}**`).setFields(fields)] })
         }
         if (description) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`[${HistoryEmojis.Mute}] Вы получили мут на ${getTime.value} минут`)], components: [new ActionRowBuilder().addComponents(AppelButton)] });
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`[${HistoryEmojis.Mute}] Вы получили мут на ${getTime.value} минут`)], components: [new ActionRowBuilder().addComponents(AppelButton)] });
         }
         if (ComplexDescription) {
-            await interaction.editReply({ embeds: [embed.setFields(fields)] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`Вы получили комплексное наказание`)], components: [new ActionRowBuilder().addComponents(AppelButton)] }) && await getUser.user.send({ embeds: [embed.setFields(fields)] });
+            await interaction.editReply({ embeds: [embed.setFields(fields)] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`Вы получили комплексное наказание`)], components: [new ActionRowBuilder().addComponents(AppelButton)] }) && await getUser.user.send({ embeds: [embed.setFields(fields)] });
         }
     }
 }

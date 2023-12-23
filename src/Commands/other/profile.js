@@ -4,7 +4,6 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, 
 const Canvas = require('@napi-rs/canvas');
 const { join } = require("path");
 const { StaffChats, Utility } = require('../../../config.js');
-const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
 const { tableValue } = require('../../Structures/Untils/Functions/action.js');
 //===========================================< Code >===========================================\\
 module.exports = {
@@ -87,7 +86,7 @@ module.exports = {
                     context.fillText(`${valueCell[8]}`, 1280, 793)
                     context.fillText(`${valueCell[9]}`, 1280, 937)
                     context.font = '143px Montserrat SemiBold';
-                    valueCell[13] < 9 ? context.fillText(`${valueCell[13]}`, 1435, 400) : context.fillText(`${valueCell[13]}`, 1410, 400)
+                    valueCell[13] < 9 ? context.fillText(`${valueCell[13]}`, 1452, 400) : context.fillText(`${valueCell[13]}`, 1410, 400)
                     context.font = '40px Montserrat SemiBold';
                     context.fillText(`${valueCell[12]}`, 460, 287)
                     context.fillStyle = `#eee9e9`
@@ -147,7 +146,7 @@ module.exports = {
                     context.fillText(`${valueCell[8]}`, 1280, 793)
                     context.fillText(`${valueCell[9]}`, 1280, 937)
                     context.font = '143px Montserrat SemiBold';
-                    valueCell[13] < 9 ? context.fillText(`${valueCell[13]}`, 1435, 400) : context.fillText(`${valueCell[13]}`, 1410, 400)
+                    valueCell[13] < 9 ? context.fillText(`${valueCell[13]}`, 1452, 400) : context.fillText(`${valueCell[13]}`, 1410, 400)
                     context.font = '40px Montserrat SemiBold';
                     context.fillText(`${valueCell[12]}`, 460, 287)
                     context.fillStyle = `#eee9e9`
@@ -168,7 +167,6 @@ module.exports = {
                     await interaction.editReply({ files: [content], components: [new ActionRowBuilder().addComponents(marketButton, questButton)] })
                 }
             } catch (error) {
-                console.log(error);
                 await interaction.editReply({
                     embeds: [
                         new EmbedBuilder().setColor(Utility.colorRed).setDescription(`\`\`\`Ничего не найдено по id: ${target.id}\`\`\``).setFooter({ text: '/add - взять на стафф', iconURL: interaction.guild.iconURL() })
@@ -178,10 +176,10 @@ module.exports = {
         }
         switch (true) {
             case isAssistant:
-                profile(0, ['profile_shop_assist', 'porfile_quest_assist'], target)
+                await profile(0, ['profile_shop_assist', 'porfile_quest_assist'], target)
                 break;
             case isControl:
-                profile(1162940648, ['profile_shop_control', 'porfile_quest_control'], target)
+                await profile(1162940648, ['profile_shop_control', 'porfile_quest_control'], target)
                 break;
         }
     }

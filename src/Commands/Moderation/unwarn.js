@@ -54,7 +54,8 @@ module.exports = {
             case isAssistant:
                 staffSheet = 0
                 break;
-            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
+            case hasRoleExecutor(StaffRoles.Admin):
+            case [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null
                 break;
             default:
@@ -67,7 +68,7 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
-            case await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) && ![OwnerId.hoki].includes(interaction.user.id):
+            case await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin) && ![OwnerId.hoki].includes(interaction.user.id):
                 badDescription = text.badTwo;
                 fields = field.Bad
                 color = Utility.colorDiscord;
@@ -82,7 +83,7 @@ module.exports = {
                     case 0:
                     case 1162940648:
                         switch (true) {
-                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case hasRoleExecutor(StaffRoles.Admin):
                             case [OwnerId.hoki].includes(interaction.user.id):
                             case await countStaff(interaction.user.id) != 0:
                                 description = text.standart
@@ -104,7 +105,7 @@ module.exports = {
                         break;
                     case null:
                         switch (true) {
-                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case hasRoleExecutor(StaffRoles.Admin):
                             case [OwnerId.hoki].includes(interaction.user.id):
                                 description = text.standart
                                 color = Utility.colorGreen
@@ -128,10 +129,10 @@ module.exports = {
         const embedDM = new EmbedBuilder().setDescription(`С вас сняли варн!`).setColor(Utility.colorGreen).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
         const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription)
         if (badDescription) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Ban}**`).setFields(fields)] })
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Ban}**`).setFields(fields)] })
         }
         if (description) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedDM] });
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedDM] });
         }
     }
 }

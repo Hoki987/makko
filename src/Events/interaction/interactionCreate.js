@@ -19,7 +19,7 @@ module.exports = {
             if (interaction.user.bot) return;
             const command = client.slashCommands.get(interaction.commandName);
             if (!command) {
-                interaction.reply({
+                await interaction.reply({
                     ephemeral: true,
                     content: "This Command is outdated!"
                 });
@@ -34,7 +34,7 @@ module.exports = {
             if (interaction.user.bot) return;
             const context = client.slashCommands.get(interaction.commandName);
             if (!context) {
-                interaction.reply({
+                await interaction.reply({
                     ephemeral: true,
                     context: "This command is outdated!"
                 });
@@ -48,7 +48,7 @@ module.exports = {
         if (interaction.isButton()) {
             const command = client.buttons.get(interaction.customId.split('_')[0]);
             if (!command) {
-                interaction.reply({
+                await interaction.reply({
                     ephemeral: true,
                     content: "This Command is outdated!"
                 });

@@ -1,8 +1,7 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, ChatInputCommandInteraction, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
+const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
-const color = require('colors');
 const { Utility } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 const { renderHistory } = require('../../Structures/Untils/render.js');

@@ -35,7 +35,6 @@ module.exports = {
 
         let color;
         let fields;
-        let customId;
         let staffSheet;
 
         let description;
@@ -59,15 +58,13 @@ module.exports = {
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
-                customId = 'warn_ControlButton'
                 break;
             case isAssistant:
                 staffSheet = 0
-                customId = 'warn_AssistButton'
                 break;
-            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
+            case hasRoleExecutor(StaffRoles.Admin):
+            case [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null
-                customId = 'warn_AdminButton'
                 break;
             default:
                 staffSheet = undefined
@@ -79,7 +76,7 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
-            case hasRole(WorkRoles.Ban) && await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) && ![OwnerId.hoki].includes(interaction.user.id):
+            case hasRole(WorkRoles.Ban) && await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin) && ![OwnerId.hoki].includes(interaction.user.id):
                 badDescription = text.badTwo;
                 fields = field.Bad
                 color = Utility.colorDiscord;
@@ -105,7 +102,7 @@ module.exports = {
                                 case 0:
                                 case 1162940648:
                                     switch (true) {
-                                        case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                        case hasRoleExecutor(StaffRoles.Admin):
                                         case [OwnerId.hoki].includes(interaction.user.id):
                                             description = text.standart
                                             color = Utility.colorDiscord
@@ -128,7 +125,7 @@ module.exports = {
                                     break;
                                 case null:
                                     switch (true) {
-                                        case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                                        case hasRoleExecutor(StaffRoles.Admin):
                                         case [OwnerId.hoki].includes(interaction.user.id):
                                             description = text.standart
                                             color = Utility.colorDiscord
@@ -152,7 +149,7 @@ module.exports = {
                     case 0:
                     case 1162940648:
                         switch (true) {
-                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case hasRoleExecutor(StaffRoles.Admin):
                             case [OwnerId.hoki].includes(interaction.user.id):
                                 ComplexDescription = text.ComplexOne
                                 color = Utility.colorDiscord
@@ -193,7 +190,7 @@ module.exports = {
                         break;
                     case null:
                         switch (true) {
-                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case hasRoleExecutor(StaffRoles.Admin):
                             case [OwnerId.hoki].includes(interaction.user.id):
                                 ComplexDescription = text.ComplexOne
                                 color = Utility.colorDiscord
@@ -223,7 +220,7 @@ module.exports = {
                     case 0:
                     case 1162940648:
                         switch (true) {
-                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case hasRoleExecutor(StaffRoles.Admin):
                             case [OwnerId.hoki].includes(interaction.user.id):
                                 description = text.standart
                                 color = Utility.colorDiscord
@@ -261,7 +258,7 @@ module.exports = {
                 break;
         }
         const embedAppel = new EmbedBuilder().setDescription(text.Appel).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-        const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+        const AppelButton = new ButtonBuilder().setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Link).setURL(`${StaffChats.Appel}`);
         const embed = new EmbedBuilder().setColor(color).setDescription(description || ComplexDescription || badDescription)
         if (badDescription) {
             await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Warn}**`).setFields(fields)] })

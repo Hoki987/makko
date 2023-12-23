@@ -1,0 +1,76 @@
+//===========================================/ Import the modeles \===========================================\\
+const { Client, ButtonInteraction, EmbedBuilder } = require('discord.js');
+const { Utility } = require('../../config.js');
+
+//==========< OTHERS >==========\\
+const History = require('../Structures/Models/History.js');
+const { renderHistory } = require('../Structures/Untils/render.js');
+
+//===========================================< Code >===========================\\
+module.exports = {
+    data: {
+        name: 'userInfo'
+    },
+
+    /**
+     * @param {Client} client
+     * @param {ButtonInteraction} interaction
+     */
+
+    async execute(client, interaction) {
+        await interaction.deferReply({ ephemeral: true })
+        const [, type, targetID] = interaction.customId.split('_')
+        const target = interaction.guild.members.cache.get(targetID)
+        switch (type) {
+            case 'Avatar':
+                const embed = new EmbedBuilder()
+                    .setTitle(`Аватар пользователя | ${target.user.username}`)
+                    .setImage(target.displayAvatarURL({ size: 4096, format: 'png', dynamic: true }))
+                    .setColor(Utility.colorDiscord)
+                await interaction.editReply({ embeds: [embed] });
+                break;
+            case "history":
+                const history = await History.findAll({ where: { target: target.id }, order: [['createdAt', 'DESC']] })
+                let description = ''
+                if (!history.length) {
+                    await interaction.editReply({
+                        embeds: [new EmbedBuilder().setTitle(`История нарушений |  ${target.user.username}`).setDescription('**Пользователь ничего не нарушал**').setColor(Utility.colorDiscord).setThumbnail(target.displayAvatarURL())]
+                    })
+                    return;
+                } else {
+                    const warns = history.filter(w => w.type === 'Warn' && w.expiresAt.getTime() > Date.now())
+                    const warn = history.find(w => w.type === 'Warn' && w.expiresAt.getTime() > Date.now())
+                    const mute = history.find(m => m.type === 'Mute' && m.expiresAt.getTime() > Date.now())
+                    const banCam = history.find(bc => bc.type === 'BanCam' && bc.expiresAt.getTime() > Date.now())
+                    const banJPG = history.find(bj => bj.type === 'BanJPG' && bj.expiresAt.getTime() > Date.now())
+                    const ban = history.find(b => b.type === 'Ban' && b.expiresAt === null || b.type === 'Ban' && b.expiresAt.getTime() > Date.now())
+                    const pred = history.find(p => p.type === 'Pred' && p.expiresAt.getTime() > Date.now())
+
+                    if (warns.length) {
+                        description += `Активных варнов: ${warns.length}\n`
+                    }
+                    if (warn) {
+                        description += `Варн истекает <t:${Math.floor(warn.expiresAt.getTime() / 1000)}:R>\n`
+                    }
+                    if (mute) {
+                        description += `Мут истекает <t:${Math.floor(mute.expiresAt.getTime() / 1000)}:R>\n`
+                    }
+                    if (banCam) {
+                        description += `Запрет камеры истекает <t:${Math.floor(banCam.expiresAt.getTime() / 1000)}:R>\n`
+                    }
+                    if (banJPG) {
+                        description += `Запрет картинок истекает <t:${Math.floor(banJPG.expiresAt.getTime() / 1000)}:R>\n`
+                    }
+                    if (ban) {
+                        description += ban.expiresAt === null ? `Бан истекает **никогда**` : `Бан истекает <t:${Math.floor(ban.expiresAt?.getTime() / 1000)}:R>\n`
+                    }
+                    if (pred) {
+                        description += `Предупреждение истекает <t:${Math.floor(pred.expiresAt.getTime() / 1000)}:R>\n`
+                    }
+
+                }
+                await interaction.editReply(renderHistory(history.slice(0, 10), 1, Math.ceil(history.length / 10), description, target, interaction.user.id))
+                break;
+        }
+    }
+}

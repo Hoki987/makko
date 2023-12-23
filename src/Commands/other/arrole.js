@@ -1,8 +1,8 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 //==========< OTHERS >==========\\
-const { Utility, StaffChats, StaffRoles } = require('../../../config.js');
+const { Utility, StaffChats } = require('../../../config.js');
 //===========================================< Code >===========================================\\
 module.exports = {
     data: new SlashCommandBuilder()
@@ -29,9 +29,6 @@ module.exports = {
         let badDescription
         let color;
 
-        console.log(memberHighestRole);
-        console.log(rolePosition);
-
         await interaction.deferReply()
 
         switch (true) {
@@ -55,9 +52,9 @@ module.exports = {
         const embed = new EmbedBuilder().setDescription(description || badDescription).setColor(color)
 
         if (badDescription) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: </arrole:1167037867151867956>**`).setFields({ name: "`Пользователь`", value: `<@${getMember.user.id}>`, inline: true }, { name: "`Выдаваемая роль`", value: `<@&${getRole.id}>`, inline: true }).setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })] })
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: </arrole:1167037867151867956>**`).setFields({ name: "`Пользователь`", value: `<@${getMember.user.id}>`, inline: true }, { name: "`Выдаваемая роль`", value: `<@&${getRole.id}>`, inline: true }).setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })] })
         } else {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })] })
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил(а): ${interaction.user.username}` })] })
         }
     }
 }

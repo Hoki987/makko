@@ -5,7 +5,7 @@ const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, 
 const { WorkRoles, Utility, StaffRoles, StaffChats, HistoryEmojis, OwnerId, CommandsLogsID, Reasons, UntilsRoles } = require('../../../config.js');
 const History = require('../../Structures/Models/History.js');
 const { action } = require('../../Structures/Untils/Functions/action.js');
-const { createDB, countStaff, findOneDB } = require('../../Structures/Untils/Functions/actionDB.js');
+const { createDB, countStaff } = require('../../Structures/Untils/Functions/actionDB.js');
 const { Op } = require('sequelize');
 //===========================================< Code >===========================================\\
 module.exports = {
@@ -49,7 +49,6 @@ module.exports = {
         let color;
         let fields;
         let staffSheet;
-        let customId;
 
         let description;
         let badDescription;
@@ -74,15 +73,12 @@ module.exports = {
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
-                customId = `appeal_ban_ControlButton`
                 break;
             case isAssistant:
                 staffSheet = 0
-                customId = 'appeal_ban_AssistButton'
                 break;
             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null
-                customId = 'appeal_ban_AdminButton'
                 break;
             default:
                 staffSheet = undefined

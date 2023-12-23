@@ -36,7 +36,6 @@ module.exports = {
         let color;
         let fields;
         let staffSheet;
-        let customId;
 
         let description;
         let badDescription;
@@ -56,15 +55,12 @@ module.exports = {
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
-                customId = 'pred_ControlButton'
                 break;
             case isAssistant:
                 staffSheet = 0
-                customId = 'mute_AssistButton'
                 break;
             case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null
-                customId = 'mute_AdminButton'
                 break;
             default:
                 staffSheet = undefined
@@ -139,13 +135,13 @@ module.exports = {
                 break;
         }
         const embedAppel = new EmbedBuilder().setDescription(text.Appel).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
-        const AppelButton = new ButtonBuilder().setCustomId(customId).setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Primary);
+        const AppelButton = new ButtonBuilder().setLabel('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤОбжаловатьㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ').setStyle(ButtonStyle.Link).setURL(`${StaffChats.Appel}`);
         const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription)
         if (badDescription) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Pred}**`).setFields(fields)] })
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Pred}**`).setFields(fields)] })
         }
         if (description) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`[${HistoryEmojis.Pred}] Вы получили предупреждение на 24 часа`)], components: [new ActionRowBuilder().addComponents(AppelButton)] });
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedAppel.setTitle(`[${HistoryEmojis.Pred}] Вы получили предупреждение на 24 часа`)], components: [new ActionRowBuilder().addComponents(AppelButton)] });
         }
     }
 }

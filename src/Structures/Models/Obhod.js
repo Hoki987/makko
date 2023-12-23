@@ -12,6 +12,10 @@ const Obhod = sequelize.define(
             type: DataTypes.STRING, // статус active/inactive
             allowNull: true,
         },
+        type: {
+            type: DataTypes.STRING, // тип ветки chat/voice
+            allowNull: true,
+        },
         endAt: {
             type: DataTypes.DATE, // когда закончился обход
             allowNull: true,

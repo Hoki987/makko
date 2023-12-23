@@ -1,5 +1,5 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonInteraction } = require('discord.js');
+const { Client, ButtonInteraction } = require('discord.js');
 
 //==========< OTHERS >==========\\
 const History = require('../Structures/Models/History.js');

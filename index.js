@@ -1,5 +1,5 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, GatewayIntentBits, Partials, Collection } = require("discord.js");
+const { Client, GatewayIntentBits, Partials, Collection, Options } = require("discord.js");
 const color = require("colors");
 require("dotenv").config();
 
@@ -39,6 +39,12 @@ const client = new Client({
         Partials.ThreadMember,
         Partials.User
     ],
+    makeCache: Options.cacheWithLimits({
+        GuildMemberManager: {
+            maxSize: 1000,
+            keepOverLimit: member => member.id === client.user.id,
+        },
+    }),
 })
 
 //======================< Collection >===================\\
@@ -56,8 +62,8 @@ Handlers.forEach(handler => {
 });
 
 //======================< Login >===================\\
-client.login(process.env.TOKEN).then(() => {
-    loadDatabase(client, color);
+client.login(process.env.TOKEN).then(async () => {
+    await loadDatabase(client, color);
     loadEvents(client, color);
     loadCommands(client, color);
 })

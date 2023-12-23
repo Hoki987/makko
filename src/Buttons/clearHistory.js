@@ -1,10 +1,10 @@
 //===========================================/ Import the modeles \===========================================\\
-const { Client, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonInteraction, EmbedBuilder } = require('discord.js');
+const { Client, ButtonInteraction, EmbedBuilder } = require('discord.js');
 const { HistoryNames } = require('../../config.js');
 
 //==========< OTHERS >==========\\
 const History = require('../Structures/Models/History.js');
-const { renderHistory, renderClearHistory } = require('../Structures/Untils/render.js');
+const { renderClearHistory } = require('../Structures/Untils/render.js');
 
 //===========================================< Code >===========================\\
 module.exports = {

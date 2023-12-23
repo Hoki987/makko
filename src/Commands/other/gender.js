@@ -38,6 +38,6 @@ module.exports = {
                 break;
         }
         const embed = new EmbedBuilder().setDescription(description).setColor(color)
-        await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил: ${interaction.user.username}` })] })
+        await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ iconURL: interaction.user.avatarURL(), text: `Выполнил: ${interaction.user.username}` })] })
     }
 }

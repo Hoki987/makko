@@ -55,7 +55,8 @@ module.exports = {
             case isAssistant:
                 staffSheet = 0
                 break;
-            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) || [OwnerId.hoki].includes(interaction.user.id):
+            case hasRoleExecutor(StaffRoles.Admin):
+            case [OwnerId.hoki].includes(interaction.user.id):
                 staffSheet = null
                 break;
             default:
@@ -67,13 +68,12 @@ module.exports = {
             case interaction.user.id === getUser.member.id:
             case getUser.user.bot:
             case memberPosition <= targetPosition && ![OwnerId.hoki].includes(interaction.user.id):
-            case hasRole(WorkRoles.Ban) && await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator) && ![OwnerId.hoki].includes(interaction.user.id):
+            case hasRole(WorkRoles.Ban) && await countStaff(interaction.user.id) === 0 && !hasRoleExecutor(StaffRoles.Admin) && ![OwnerId.hoki].includes(interaction.user.id):
                 badDescription = text.badTwo;
                 fields = field.Bad
                 color = Utility.colorDiscord;
                 break;
             case !hasRole(WorkRoles.Ban):
-                console.log(7);
                 badDescription = text.badThree
                 color = Utility.colorRed
                 fields = field.Bad
@@ -81,32 +81,27 @@ module.exports = {
             default:
                 const lastNullBan = await findOneDB(getUser.user.id, 'Ban', null)
                 const lastBan = await findOneDB(getUser.user.id, 'Ban', { [Op.gt]: new Date() })
-                console.log(lastNullBan);
-                console.log(lastBan);
                 switch (staffSheet) {
                     case 0:
                     case 1162940648:
                         switch (true) {
-                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case hasRoleExecutor(StaffRoles.Admin):
                             case [OwnerId.hoki].includes(interaction.user.id):
                             case await countStaff(interaction.user.id) != 0:
                                 switch (true) {
                                     case lastBan !== null:
-                                        console.log(3);
                                         description = text.standart
                                         color = Utility.colorGreen
                                         await History.update({ expiresAt: lastBan.createdAt.getTime() }, { where: { id: lastBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
                                         break;
                                     case lastNullBan !== null:
-                                        console.log(2);
                                         description = text.standart
                                         color = Utility.colorGreen
                                         await History.update({ expiresAt: lastNullBan.createdAt }, { where: { id: lastNullBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
                                         break;
                                     default:
-                                        console.log(1);
                                         badDescription = text.badThree
                                         color = Utility.colorRed
                                         fields = field.Bad
@@ -122,7 +117,7 @@ module.exports = {
                         break;
                     case null:
                         switch (true) {
-                            case hasRoleExecutor(StaffRoles.Admin || StaffRoles.Developer || StaffRoles.Moderator):
+                            case hasRoleExecutor(StaffRoles.Admin):
                             case [OwnerId.hoki].includes(interaction.user.id):
                                 switch (true) {
                                     case lastBan:
@@ -130,20 +125,17 @@ module.exports = {
                                         color = Utility.colorGreen
                                         await History.update({ expiresAt: lastBan.createdAt.getTime() }, { where: { id: lastBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
-                                        console.log(6);
                                         break;
                                     case lastNullBan:
                                         description = text.standart
                                         color = Utility.colorGreen
                                         await History.update({ expiresAt: lastNullBan.createdAt }, { where: { id: lastNullBan.id } })
                                         await getUser.member.roles.remove(WorkRoles.Ban)
-                                        console.log(5);
                                         break;
                                     default:
                                         badDescription = text.badThree
                                         color = Utility.colorRed
                                         fields = field.Bad
-                                        console.log(4);
                                         break;
                                 }
                             default:
@@ -159,10 +151,10 @@ module.exports = {
         const embedDM = new EmbedBuilder().setDescription(`Вы были разбанены!`).setColor(Utility.colorGreen).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
         const embed = new EmbedBuilder().setColor(color).setDescription(description || badDescription)
         if (badDescription) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Ban}**`).setFields(fields)] })
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setTitle(`**Команда: ${CommandsLogsID.Ban}**`).setFields(fields)] })
         }
         if (description) {
-            await interaction.editReply({ embeds: [embed] }) && client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedDM] });
+            await interaction.editReply({ embeds: [embed] }) && await client.channels.cache.get(StaffChats.Logs).send({ embeds: [embed.setFooter({ text: `Выполнил(а) ${interaction.user.tag}  | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL() })] }) && await getUser.user.send({ embeds: [embedDM] });
         }
     }
 }

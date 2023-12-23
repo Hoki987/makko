@@ -1,5 +1,5 @@
 const OwnerId = {
-    hoki: ''
+    hoki: '297372127768870913'
 }
 
 const WorkRoles = {
@@ -54,6 +54,7 @@ const StaffChats = {
     Logs: '1177899443329192018',
     StaffServerLogs: "1186245205351989268",
     Obhod: '1177488648212590632',
+    ObhodChat: '1187415238828638268',
     Appel: 'https://discord.com/channels/1000307645854519306/1177890571986141224'
 }
 
