@@ -37,7 +37,7 @@ module.exports = {
                 if (findActive.target !== interaction.user.id && !hasRoleExecutor(StaffServerRoles.Curator)) {
                     await interaction.reply({ content: 'Ничего не произошло :с', ephemeral: true })
                 } else {
-                    await Obhod.update({ endAt: new Date(), status: 'inactive' }, { where: { target: findActive.target, status: 'active' } })
+                    await Obhod.update({ endAt: new Date(), status: 'inactive' }, { where: { target: findActive.target, status: 'active', type: "Voice" } })
                     const findObhod = await Obhod.findOne({ where: { target: findActive.target, status: 'inactive', type: 'Voice' } });
                     await interaction.message.edit({ content: 'Обход окончен', embeds: [{ ...interaction.message.embeds[0].data, description: `**Закончил обход: <@${interaction.user.id}> | ${interaction.user.id}**`, fields: [{ name: `\`  Начало  \``, value: `**${new Date(findObhod.createdAt).toTimeString().split(' ')[0]}**`, inline: true }, { name: `\`  Конец  \``, value: `**${new Date(findObhod.endAt).toTimeString().split(' ')[0]}**`, inline: true }], timestamp: [] }], components: [] }) &&
                         await interaction.reply({ content: 'Обход был завершен!', ephemeral: true })
@@ -45,9 +45,9 @@ module.exports = {
                         const time = findObhod.endAt.getTime() - findObhod.createdAt.getTime()
                         let sheet = 1162940648
                         action(sheet, findObhod.target, 11) && timeAction(sheet, findObhod.target, 12, Math.floor((time / (1000 * 60)) % 60))
-                        await Obhod.destroy({ where: { status: 'inactive', type: 'Voice' }, truncate: true })
+                        await Obhod.destroy({ where: { status: 'inactive', type: 'Voice' } })
                     } else {
-                        await Obhod.destroy({ where: { status: 'inactive', type: 'Voice' }, truncate: true })
+                        await Obhod.destroy({ where: { status: 'inactive', type: 'Voice' } })
                         break;
                     }
                 }
@@ -62,7 +62,7 @@ module.exports = {
                 if (findActiveChat.target !== interaction.user.id && !hasRoleExecutor(StaffServerRoles.Curator)) {
                     await interaction.reply({ content: 'Ничего не произошло :с', ephemeral: true })
                 } else {
-                    await Obhod.update({ endAt: new Date(), status: 'inactive' }, { where: { target: findActiveChat.target, status: 'active' } })
+                    await Obhod.update({ endAt: new Date(), status: 'inactive' }, { where: { target: findActiveChat.target, status: 'active', type: "Chat" } })
                     const findObhod = await Obhod.findOne({ where: { target: findActiveChat.target, status: 'inactive', type: 'Chat' } });
                     await interaction.message.edit({ content: 'Обход окончен', embeds: [{ ...interaction.message.embeds[0].data, description: `**Закончил обход: <@${interaction.user.id}> | ${interaction.user.id}**`, fields: [{ name: `\`  Начало  \``, value: `**${new Date(findObhod.createdAt).toTimeString().split(' ')[0]}**`, inline: true }, { name: `\`  Конец  \``, value: `**${new Date(findObhod.endAt).toTimeString().split(' ')[0]}**`, inline: true }], timestamp: [] }], components: [] }) &&
                         await interaction.reply({ content: 'Обход был завершен!', ephemeral: true })
@@ -70,9 +70,9 @@ module.exports = {
                         const time = findObhod.endAt.getTime() - findObhod.createdAt.getTime()
                         let sheet = 0
                         action(sheet, findObhod.target, 11) && timeAction(sheet, findObhod.target, 12, Math.floor((time / (1000 * 60)) % 60))
-                        await Obhod.destroy({ where: { status: 'inactive', type: 'Chat' }, truncate: true })
+                        await Obhod.destroy({ where: { status: 'inactive', type: 'Chat' }, })
                     } else {
-                        await Obhod.destroy({ where: { status: 'inactive', type: 'Chat' }, truncate: true })
+                        await Obhod.destroy({ where: { status: 'inactive', type: 'Chat' }, })
                         break;
                     }
                 }

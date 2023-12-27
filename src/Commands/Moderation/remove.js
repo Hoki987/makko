@@ -1,7 +1,7 @@
 //===========================================/ Import the modeles \===========================================\\
 const { Client, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 //==========< OTHERS >==========\\
-const { Utility } = require('../../../config.js');
+const { Utility, StaffRoles } = require('../../../config.js');
 const { StaffChats } = require('../../../config.js');
 const Staff = require('../../Structures/Models/Staff.js');
 const { delStaff } = require('../../Structures/Untils/Functions/actionDB.js');
@@ -36,28 +36,37 @@ module.exports = {
         let description;
         let dmdescription;
         let Position;
+        let RoleId
 
         switch (true) {
             case isControl:
                 staffSheet = 1162940648
                 Position = 'Control'
+                RoleId = StaffRoles.Control
                 description = `Вы сняли с должности Контрола <@${getUser.user.id}>`
                 dmdescription = `Вы были сняты c должности Контрола`
                 break;
             case isAssistant:
                 staffSheet = 0
                 Position = 'Assistant'
+                RoleId = StaffRoles.Assistant
                 description = `Вы сняли с должности Ассистента <@${getUser.user.id}>`
                 dmdescription = `Вы были сняты c должности Ассистента`
                 break;
         }
         const embed = new EmbedBuilder().setDescription(description).setColor(Utility.colorDiscord)
+        const dmembed = new EmbedBuilder().setDescription(dmdescription).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
 
         switch (true) {
-            case await fetchStaff(staffSheet, getUser.user.id) && await Staff.count({ where: { PersonalId: getUser.user.id, Position: Position } }) > 0:
-                const dmembed = new EmbedBuilder().setDescription(dmdescription).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() });
+            case await fetchStaff(staffSheet, getUser.user.id) && await Staff.count({ where: { PersonalId: getUser.user.id } }) === 2:
                 await delStaff(getUser.user.id, Position, staffSheet)
                 await interaction.editReply({ embeds: [embed] })
+                await getUser.user.send({ embeds: [dmembed] })
+                break;
+            case await fetchStaff(staffSheet, getUser.user.id) && await Staff.count({ where: { PersonalId: getUser.user.id } }) === 1:
+                await delStaff(getUser.user.id, Position, staffSheet)
+                await interaction.editReply({ embeds: [embed] })
+                await getUser.member.roles.remove(RoleId);
                 await getUser.user.send({ embeds: [dmembed] })
                 break;
             default:

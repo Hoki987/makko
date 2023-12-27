@@ -63,11 +63,7 @@ module.exports = {
         if (dmDescription) {
             const dmembed = new EmbedBuilder().setDescription(dmDescription).setColor(Utility.colorDiscord).setFooter({ text: `Выполнил(а) ${interaction.user.tag} | ` + 'Сервер ' + interaction.guild.name, iconURL: interaction.user.displayAvatarURL() })
             await addStaff(getUser.user.tag, getUser.user.id, Position, staffSheet)
-            if (isControl) {
-                await getUser.member.roles.add(StaffRoles.Control)
-            } else {
-                await getUser.member.roles.add(StaffRoles.Assistant)
-            }
+            await getUser.member.roles.add(StaffRoles.Control)
             await interaction.editReply({ embeds: [embed] })
             await getUser.user.send({ embeds: [dmembed] })
         } else {

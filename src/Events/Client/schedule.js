@@ -4,7 +4,7 @@ const { doc, docAssist } = require('../../Structures/Untils/googlesheet.js');
 const History = require('../../Structures/Models/History.js');
 const { Op } = require("sequelize");
 const cron = require('node-cron');
-const { WorkRoles, Utility, StaffChats, StaffServerRoles, PunishmentRemoveMessage } = require('../../../config.js');
+const { WorkRoles, Utility, StaffChats, StaffServerRoles, PunishmentRemoveMessage, StaffRoles } = require('../../../config.js');
 const { countStaff } = require("../../Structures/Untils/Functions/actionDB.js");
 
 //===========================================< Code >===========================\\
@@ -35,14 +35,14 @@ module.exports = {
             const messages = await channel.messages.fetch({ limit: 1 })
             const last = messages.last();
             if (last === undefined) {
-                channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] })
+                await channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] })
             } else {
                 switch (last.content) {
                     case `<@&${StaffServerRoles.Control}>, новый обход!`:
-                        last.delete() && channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] })
+                        await last.delete() && await channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] })
                         break;
                     case 'Обход окончен':
-                        channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] })
+                        await channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] })
                         break;
                 }
             }
@@ -60,17 +60,17 @@ module.exports = {
 
         const channelChat = client.channels.cache.get(StaffChats.ObhodChat)
         cron.schedule('0 * * * *', async () => {
-            const messages = await channelChat.messages.fetch({ limit: 1 })
-            const last = messages.last();
-            if (last === undefined) {
-                channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
+            const messagesChat = await channelChat.messages.fetch({ limit: 1 })
+            const lastChat = messagesChat.last();
+            if (lastChat === undefined) {
+                await channelChat.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
             } else {
-                switch (last.content) {
+                switch (lastChat.content) {
                     case `<@&${StaffServerRoles.Control}>, новый обход!`:
-                        last.delete() && channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
+                        await lastChat.delete() && await channelChat.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
                         break;
                     case 'Обход окончен':
-                        channel.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
+                        await channelChat.send({ content: `<@&${StaffServerRoles.Control}>, новый обход!`, embeds: [embedChat], components: [new ActionRowBuilder().addComponents(buttonChat)] })
                         break;
                 }
             }
@@ -101,9 +101,9 @@ module.exports = {
         cron.schedule('0 0 * * 6', async () => {
             await sheetAssist.loadCells()
             let rowIndex = 3
-            let cell = sheet.getCell(rowIndex, 66)
+            let cell = sheetAssist.getCell(rowIndex, 66)
             while (cell.value !== null) {
-                cell.formula = `=${sheet.getCell(rowIndex, 64).a1Address} + ${cell.value}`
+                cell.formula = `=${sheetAssist.getCell(rowIndex, 64).a1Address} + ${cell.value}`
 
                 rowIndex++
                 cell = sheetAssist.getCell(rowIndex, 66)
@@ -111,19 +111,14 @@ module.exports = {
             await sheetAssist.saveUpdatedCells();
             await sheetAssist.duplicate();
             await sheetAssist.clear('H4:BD24');
-        }, {
-            timezone: 'Europe/Moscow'
-        });
 
-        cron.schedule('0 0 * * 6', async () => {
             await sheet.loadCells()
-            let rowIndex = 3
-            let cell = sheet.getCell(rowIndex, 66)
-            while (cell.value !== null) {
-                cell.formula = `=${sheet.getCell(rowIndex, 64).a1Address} + ${cell.value}`
+            let cellContr = sheet.getCell(rowIndex, 66)
+            while (cellContr.value !== null) {
+                cellContr.formula = `=${sheet.getCell(rowIndex, 64).a1Address} + ${cellContr.value}`
 
                 rowIndex++
-                cell = sheet.getCell(rowIndex, 66)
+                cellContr = sheet.getCell(rowIndex, 66)
             }
             await sheet.saveUpdatedCells();
             await sheet.duplicate();
@@ -132,23 +127,29 @@ module.exports = {
             timezone: 'Europe/Moscow'
         });
 
-        cron.schedule("0 * * * *", async () => {
-            const stuffServer = client.guilds.cache.get(Utility.StuffServer)
+        cron.schedule('0 * * * *', async () => {
+            const mainGuild = client.guilds.cache.get("822354240713261068")
+            const secondGuild = client.guilds.cache.get("1104726144697258044")
 
-            stuffServer.members.cache.forEach(async member => {
-                if (member.roles.cache.find((role) => Object.values(StaffServerRoles).includes(role.id))) {
-                    return
-                } else {
-                    console.log(await countStaff(member.user.id));
-                    if (await countStaff(member.user.id)) {
-                        member.roles.add(StaffServerRoles.Control)
-                    } else {
-                        member.kick("Отсутствует стафф роль.") && await client.channels.cache.get(StaffChats.StaffServerLogs).send({ embeds: [new EmbedBuilder().setColor(Utility.colorDiscord).setAuthor({ name: `Исключен: ${member.user.username} | ${member.user.id}`, iconURL: member.user.displayAvatarURL() }).setDescription("```Причина: Отсутствует стафф роль.```").setFooter({ text: "Выполнил(а): СИСТЕМА" })] })
-                    }
-                }
+            await secondGuild.members.fetch();
+
+            secondGuild.members.cache.forEach(async member => {
+                const kickembed = new EmbedBuilder()
+                    .setColor(Utility.colorDiscord)
+                    .setAuthor({ name: `Исключен: ${member.user.username} | ${member.user.id}`, iconURL: member.user.displayAvatarURL() })
+                    .setDescription("```Причина: Отсутствует стафф роль.```")
+                    .setFooter({ text: "Выполнил(а): СИСТЕМА" })
+
+                mainGuild.members.fetch(member.user.id).then(async (member) => {
+                    member.roles.cache.find((role) => Object.values(StaffRoles).includes(role.id)) ? (void 0) : await countStaff(member.user.id) > 0 ?
+                        await secondGuild.members.cache.get(member.user.id).roles.add(StaffServerRoles.Control) : await secondGuild.members.cache.get(member.user.id).kick("Отсутствует стафф роль.") && await secondGuild.channels.cache.get(StaffChats.StaffServerLogs).send({ embeds: [kickembed] })
+                }).catch(async () => {
+                    await secondGuild.members.cache.get(member.user.id).kick("Отсутствует стафф роль.") && await secondGuild.channels.cache.get(StaffChats.StaffServerLogs).send({ embeds: [kickembed] })
+                })
             })
         }, {
             timezone: 'Europe/Moscow'
         });
-    },
+    }
+
 };

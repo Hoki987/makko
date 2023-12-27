@@ -66,7 +66,6 @@ module.exports = {
             }
             await interaction.editReply({ embeds: [new EmbedBuilder().setDescription(description)] })
         } catch (error) {
-            console.log(error);
             await interaction.editReply({ content: "Пользователь не находится в стаффе." })
         }
     }

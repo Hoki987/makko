@@ -3,58 +3,63 @@ const OwnerId = {
 }
 
 const WorkRoles = {
-    Ban: "1154769569274150955",
-    Pred: "1159074943913435176",
-    BanCam: "1159178709123743755",
-    BanJPG: "1159431090814070794",
-    Mute: "1166431117017104515",
+    Ban: "865956684529926194",
+    Pred: "936726245142573056",
+    BanCam: "932423251819372595",
+    BanJPG: "866625867577163776",
+    Mute: "865956690070470656",
 }
 
 const UntilsRoles = {
-    Everyone: "1000307645854519306",
-    Male: "1168099600213741578",
-    Female: "1168099623425032313",
-    Loveroom: "1168099628730818610",
-    Ban: "1154769569274150955"
+    Everyone: "822354240713261068",
+    Male: "840530290962071624",
+    Female: "866020486378291220",
+    Loveroom: "866386010891223040",
+    Ban: "865956684529926194"
 }
 
 const StaffServerRoles = {
-    Owner: '1083514931984482304',
-    Admin: '1154731145552986112',
-    Developer: '1163407094691680346',
-    Moderator: '1154731154025488434',
-    Curator: '1177911423540666389',
-    Control: '1177523605073039380',
-    Assistant: '1163407187591299072'
-}
-
-const OwnerRoles = {
-    Admin: '1154731145552986112',
-    Developer: '1163407094691680346',
-    Moderator: '1154731154025488434',
+    Owner: '1104726172111212604',
+    Bot: "1105461876109873183",
+    FullAdmin: "1104726858920108074",
+    Admin: '1104727857269321839',
+    Developer: '1172521451161649172',
+    Moderator: '1108887305273491556',
+    Curator: '1126417393221107804',
+    Control: '1104780755017682985',
+    Assistant: '1104780755017682985',
+    EventsMod: "1104927193479512205",
+    MafiaBunkerMod: "1105499158636412959",
+    CloseMod: "1105499310583447663",
+    CreativeMod: "1104810378376007730",
+    ContentMod: "1104774766277169162"
 }
 
 const StaffRoles = {
-    Admin: '1154731145552986112',
-    Developer: '1163407094691680346',
-    Moderator: '1154731154025488434',
-    Curator: '1177911423540666389',
-    Control: '1177523605073039380',
-    Assistant: '1163407187591299072',
-    EventsMod: '1163407206230798416',
-    MafiaBunkerMod: '1163407227638534217',
-    CloseMod: '1163407253307658271',
-    CreativeMod: '1163407267085955072',
-    ContentMod: '1163407285406674984'
+    Owner: "866632983427678219",
+    Bot: "927175918936522803",
+    FullAdmin: "841280413775298560",
+    FakeAdmin: "955929692953800716",
+    Admin: '865961562955317268',
+    Developer: '866438519265951764',
+    Moderator: '865961558991044629',
+    Curator: '822526914321055744',
+    Control: '842077390641561610',
+    Assistant: '1139669836696387745',
+    EventsMod: '865974246597066762',
+    MafiaBunkerMod: '944556479405522984',
+    CloseMod: '866366388117176320',
+    CreativeMod: '957019679036158044',
+    ContentMod: '1033705687047471124'
 }
 
 const StaffChats = {
-    Control: '1177899166215720960',
-    Assistant: '1177899149576900718',
-    Logs: '1177899443329192018',
-    StaffServerLogs: "1186245205351989268",
-    Obhod: '1177488648212590632',
-    ObhodChat: '1187415238828638268',
+    Control: '1188902802106359868',
+    Assistant: '1188902908096422020',
+    Logs: '867011000770756628',
+    StaffServerLogs: "1186244264519274506",
+    Obhod: '1188862460179009567',
+    ObhodChat: '1188862393783160892',
     Appel: 'https://discord.com/channels/1000307645854519306/1177890571986141224'
 }
 
@@ -66,8 +71,8 @@ const Reasons = {
 }
 
 const Utility = {
-    StuffServer: '1000307645854519306',
-    guildId: '1000307645854519306',
+    StuffServer: '1104726144697258044',
+    guildId: '822354240713261068',
     colorRed: 16711680,
     colorGreen: 7405312,
     colorYellow: 16771840,
@@ -115,4 +120,4 @@ const CommandsLogsID = {
     Ban: '</ban:1170111146422964238>',
 }
 
-module.exports = { OwnerId, WorkRoles, StaffRoles, StaffServerRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID, OwnerRoles, HistoryNames, PunishmentRemoveMessage };
+module.exports = { OwnerId, WorkRoles, StaffRoles, StaffServerRoles, Reasons, Utility, HistoryEmojis, StaffChats, UntilsRoles, CommandsLogsID, HistoryNames, PunishmentRemoveMessage };

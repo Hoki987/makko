@@ -62,8 +62,8 @@ Handlers.forEach(handler => {
 });
 
 //======================< Login >===================\\
-client.login(process.env.TOKEN).then(async () => {
-    await loadDatabase(client, color);
+client.login(process.env.TOKEN).then(() => {
+    loadDatabase(client, color);
     loadEvents(client, color);
     loadCommands(client, color);
 })
